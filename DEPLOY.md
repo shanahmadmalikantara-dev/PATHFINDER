@@ -1,160 +1,202 @@
-# 🌐 Panduan Deploy: VPS Jagoan Hosting + Webuzo
+# 🌐 Panduan Deploy: VPS Jagoan Hosting (NAT) + Webuzo
 
-Analoginya begini: VPS itu kayak **rumah kosong** yang kamu sewa. Kita bakal:
-1. Pasang "listrik" (Node.js)
-2. Masukin "perabotan" (kode PathFinder)
-3. Nyalain "lampu" biar terus nyala (PM2)
-4. Pasang "alamat & pintu depan" (domain + SSL lewat Webuzo)
+Panduan ini ditulis ulang dari proses deploy yang **benar-benar berhasil** di VPS Jagoan Hosting
+(Ubuntu 24.04 + Webuzo, domain `pathfind.my.id`).
 
-> ⏱️ Perkiraan waktu: 30–60 menit. Kalau mentok di satu langkah, catat pesan error-nya lalu tanyakan.
+Analogi singkat:
+- **VPS** = unit apartemen kita. Alamat gedungnya (IP publik `101.50.1.15`) dipakai bareng penghuni lain,
+  dan alamat internal unit kita `172.16.0.178` (inilah *VPS NAT*).
+- **Domain Forward** (panel Jagoan) = resepsionis gedung yang mengantar tamu ke pintu unit kita.
+- **Webuzo (Apache)** = penyambut tamu di dalam unit, yang meneruskan tamu ke aplikasi.
+- **PM2** = satpam yang menjaga aplikasi Next.js (port 3000) tetap menyala 24 jam.
+
+```
+Pengunjung ──▶ pathfind.my.id (DNS A → 101.50.1.15)
+           ──▶ Domain Forward Jagoan (80→80, 443→443)
+           ──▶ Webuzo Apache di VPS (SSL Let's Encrypt)
+           ──▶ ProxyPass ke 127.0.0.1:3000
+           ──▶ Next.js (PM2)
+```
+
+> ⏱️ Total waktu: sekitar 1–2 jam (termasuk menunggu DNS).
+> 💡 Aturan emas: sebelum paste perintah, pastikan awal barisnya `root@pathfind...#`
+> (artinya kamu sudah di VPS), bukan `PS C:\Users\...>` (masih di laptop).
 
 ---
 
-## 0. Yang perlu disiapkan
+## 1. Arahkan domain ke VPS (DNS A record)
 
-- [ ] IP VPS dan password `root` (ada di email/dashboard Jagoan Hosting)
-- [ ] Domain yang sudah diarahkan ke IP VPS (**A record** `@` dan `www` → IP VPS)
-- [ ] (Opsional) Gemini API key dari https://aistudio.google.com/apikey
-- [ ] Aplikasi terminal: **Windows** pakai PowerShell/Terminal bawaan, **Mac** pakai Terminal
+Dashboard Jagoan → **Domains** → `pathfind.my.id` → **DNS Management**.
+Ubah record **A** untuk `pathfind.my.id.` menjadi **`101.50.1.15`** → **Save**.
+(Record `www` berupa CNAME ke `pathfind.my.id` biarkan saja.)
 
-## 1. Masuk ke VPS lewat SSH
+> Perubahan DNS butuh waktu menyebar (TTL 14400 = sampai ±4 jam). Selama itu, perangkat yang
+> memakai DNS lama (misalnya router WiFi rumah) bisa masih nyasar ke alamat lama dan muncul
+> `ERR_CONNECTION_CLOSED`. Cek dengan `nslookup pathfind.my.id 8.8.8.8` (harus `101.50.1.15`).
+> Solusi: tunggu, pakai data seluler, atau restart router.
 
-```bash
-ssh root@IP_VPS_KAMU
-```
+## 2. Masuk SSH lewat port forward
 
-Ketik `yes` kalau ditanya, lalu masukkan password (password memang tidak terlihat saat diketik, itu normal).
-
-## 2. Pasang Node.js 22 + alat build
-
-PathFinder butuh **Node.js versi 22 ke atas**. Kita pakai **nvm** supaya tidak bentrok dengan Node bawaan Webuzo:
+VPS NAT tidak membuka port 22 langsung. Lihat **Domain Forward** di panel Jagoan: ada baris
+`101.50.1.15 : 52400 → 22 (TCP)`. Jadi login SSH:
 
 ```bash
-curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash
-source ~/.bashrc
-nvm install 22
-nvm alias default 22
-node -v        # harus muncul v22.x.x
-
-npm install -g pm2
+ssh -p 52400 root@101.50.1.15
 ```
 
-Alat build ini dibutuhkan untuk database SQLite (`better-sqlite3`):
+Password root ada di email aktivasi ("Informasi Login Webuzo"). **Segera ganti** setelah login:
 
 ```bash
-# Kalau VPS pakai AlmaLinux/Rocky/CentOS (umum di Webuzo):
-dnf install -y git python3 make gcc-c++
-# Kalau Ubuntu/Debian:
-# apt update && apt install -y git python3 make g++
+passwd
 ```
 
-## 3. Ambil kode dari GitHub
+## 3. Pasang Node.js 22, PM2, dan alat build
+
+Pakai mode non-interaktif supaya tidak muncul jendela biru konfigurasi:
 
 ```bash
-mkdir -p /var/www && cd /var/www
-git clone https://github.com/shanahmadmalikantara-dev/PATHFINDER.git pathfinder
-cd pathfinder
-git checkout main      # atau branch yang mau di-deploy
+export DEBIAN_FRONTEND=noninteractive; dpkg --configure -a; apt-get update && apt-get install -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" git build-essential python3 nano && curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash && export NVM_DIR="$HOME/.nvm" && . "$NVM_DIR/nvm.sh" && nvm install 22 && nvm alias default 22 && npm install -g pm2 && node -v && pm2 -v
 ```
 
-> Kalau repo-nya **private**, GitHub akan minta login. Pakai *Personal Access Token* sebagai password (GitHub → Settings → Developer settings → Tokens).
+> Kalau muncul `Could not get lock ... held by process NNNN`, berarti ada proses apt lama yang
+> nyangkut: jalankan `kill NNNN`, tunggu beberapa detik, lalu ulangi perintah di atas.
 
-## 4. Atur konfigurasi (.env)
+## 4. Ambil kode & atur `.env`
 
 ```bash
-cp .env.example .env
-nano .env
+mkdir -p /var/www && cd /var/www && git clone https://github.com/shanahmadmalikantara-dev/PATHFINDER.git pathfinder && cd pathfinder
+printf 'DATABASE_PATH=./data/pathfinder.db\nGEMINI_API_KEY=\nGEMINI_MODEL=gemini-2.5-flash\nDEMO_MODE=true\n' > .env && chmod 600 .env
 ```
 
-Isi seperti ini:
-
-```
-DATABASE_PATH=./data/pathfinder.db
-GEMINI_API_KEY=isi_api_key_kamu_disini
-GEMINI_MODEL=gemini-2.5-flash
-DEMO_MODE=true
-```
-
-Simpan dengan `Ctrl+O` → Enter, lalu keluar dengan `Ctrl+X`.
-
-> Setelah lomba selesai, ganti `DEMO_MODE=false` biar tombol akun demo hilang.
-
-## 5. Install, build, dan buat data demo
+Masukkan API key Gemini (key terlihat saat di-paste, lalu layar dibersihkan):
 
 ```bash
-npm ci
-npm run build
-npm run seed
+read -rp "API KEY: " K; sed -i "s|^GEMINI_API_KEY=.*|GEMINI_API_KEY=$K|" .env; unset K; clear; awk -F= '{print $1, "-> panjang isi:", length($2)}' .env
 ```
 
-## 6. Nyalakan dengan PM2 (biar jalan terus 24 jam)
+Baris `GEMINI_API_KEY` harus **bukan 0**. ⚠️ Jangan screenshot layar yang menampilkan API key.
+
+## 5. Build, isi data demo, nyalakan dengan PM2
 
 ```bash
-pm2 start ecosystem.config.cjs
-pm2 save
-pm2 startup        # salin & jalankan perintah yang muncul, supaya auto-nyala saat VPS restart
+cd /var/www/pathfinder && export NVM_DIR="$HOME/.nvm" && . "$NVM_DIR/nvm.sh" && npm ci && npm run build && npm run seed && pm2 start ecosystem.config.cjs && pm2 save && pm2 startup systemd -u root --hp /root && curl -s -o /dev/null -w "STATUS: %{http_code}\n" http://localhost:3000/masuk
 ```
 
-Cek apakah sudah jalan:
+Harus muncul `STATUS: 200`. Cek kapan saja dengan `pm2 status` (baris `pathfinder` harus `online`).
+
+## 6. Buka pintu 80 & 443 di Domain Forward
+
+Panel Jagoan → **Domain Forward** → **+ Add New**, buat dua entri:
+
+| Protocol | Hostname |
+|---|---|
+| HTTPS | `pathfind.my.id` |
+| HTTP | `pathfind.my.id` |
+
+Hasilnya di tabel: `pathfind.my.id 443 → 443 (HTTPS)` dan `pathfind.my.id 80 → 80 (HTTP)`.
+
+## 7. Daftarkan domain di Webuzo
+
+1. Buka panel admin Webuzo: `https://pathfind.my.id:2005` (login `root`). Peringatan sertifikat di
+   port panel ini wajar → **Advanced → Proceed**.
+2. **Users → Create New Account**:
+   - Username: `pathfind`
+   - Domain: `pathfind.my.id`
+   - Email & password (password **beda** dari root)
+   - Plan & Resource: biarkan default → **Add User**
+
+Webuzo otomatis membuat vhost Apache untuk domain ini, beserta "slot" konfigurasi khusus yang
+tidak tertimpa saat Webuzo update:
+`/var/webuzo-data/apache2/custom/domains/pathfind.my.id.conf`
+
+## 8. Sambungkan domain ke aplikasi (reverse proxy)
+
+Isi slot khusus tadi agar Apache meneruskan pengunjung ke Next.js di port 3000
+(folder `.well-known/acme-challenge` dikecualikan supaya perpanjangan SSL tetap jalan):
 
 ```bash
-pm2 status
-curl -I http://localhost:3000     # harus muncul "HTTP/1.1 200 OK"
+mkdir -p /var/webuzo-data/apache2/custom/domains && cat > /var/webuzo-data/apache2/custom/domains/pathfind.my.id.conf <<'EOF'
+# PathFinder AI: teruskan pengunjung ke aplikasi Next.js (PM2, port 3000)
+ProxyPreserveHost On
+ProxyRequests Off
+ProxyPass /.well-known/acme-challenge/ !
+ProxyPass / http://127.0.0.1:3000/
+ProxyPassReverse / http://127.0.0.1:3000/
+<IfModule mod_headers.c>
+  RequestHeader set X-Forwarded-Proto "https" env=HTTPS
+</IfModule>
+EOF
+/usr/local/apps/apache2/bin/httpd -t && (systemctl restart httpd 2>/dev/null || /usr/local/apps/apache2/bin/apachectl -k graceful)
+curl -s -o /dev/null -w "TES DOMAIN: %{http_code}\n" -H "Host: pathfind.my.id" http://127.0.0.1/masuk
 ```
 
-Sampai sini aplikasi sudah hidup di port **3000**, tapi belum bisa dibuka dari luar. Langkah berikutnya menyambungkan domain.
+Harus muncul `Syntax OK` dan `TES DOMAIN: 200`. (Peringatan `AH00316 MaxRequestWorkers` boleh diabaikan.)
 
-## 7. Sambungkan domain lewat Webuzo (Reverse Proxy)
+## 9. Pasang SSL (Let's Encrypt) lewat Webuzo
 
-Analoginya: Webuzo jadi **resepsionis**. Tamu yang datang ke `domainmu.com` diantar ke "kamar" port 3000.
+Login panel user: `https://pathfind.my.id:2003` (user `pathfind`).
 
-1. Login panel Webuzo: `https://IP_VPS:2003` (panel user) atau `https://IP_VPS:2005` (panel admin)
-2. Tambahkan domain kamu di menu **Domain → Add Domain** (kalau belum)
-3. Buka **Domain → Manage Domain**, pilih domain kamu, lalu cari opsi **Proxy / Reverse Proxy**
-   (di beberapa versi letaknya di menu **Application Manager → Add Application**: pilih tipe *Node.js*, isi port `3000`, path `/`)
-4. Isi target proxy: `http://127.0.0.1:3000`
-5. **SSL**: buka **Security → SSL Certificate / Let's Encrypt**, lalu install sertifikat untuk domain kamu
+1. **SSL → Automatic SSL**: sertifikat Let's Encrypt dibuat otomatis. Cek tab **Logs**: harus ada
+   `Certificate saved successfully`.
+2. **SSL → Install Certificate**: pilih domain `pathfind.my.id` → **Fetch** (kotak key/cert terisi
+   otomatis) → **Install**. ⚠️ Jangan screenshot kotak *Private Key*.
 
-> **PENTING:** PWA (install ke HP) dan enkripsi jurnal **wajib HTTPS**. Pastikan SSL sudah aktif dan buka situsnya lewat `https://`.
+Langkah 2 penting: tanpa itu, sertifikat hanya "tersimpan" tetapi belum dipasang, sehingga Webuzo
+belum membuat pintu `*:443` untuk domain ini dan `https://` jatuh ke halaman default Webuzo.
 
-Kalau menu proxy tidak ketemu, ambil screenshot menu Webuzo kamu dan tanyakan. Tampilan Webuzo bisa beda-beda tergantung versinya.
+Verifikasi dari VPS:
 
-## 8. Tes!
+```bash
+grep -n -E "<VirtualHost|ServerName|SSLCertificateFile" /usr/local/apps/apache2/etc/conf.d/webuzoVH.conf
+echo | openssl s_client -connect 172.16.0.178:443 -servername pathfind.my.id 2>&1 | grep -E "^ *[0-9] s:|Verify return code"
+curl -sk --resolve pathfind.my.id:443:172.16.0.178 https://pathfind.my.id/masuk | grep -o "<title>[^<]*</title>"
+```
 
-1. Buka `https://domainmu.com` di HP
-2. Login pakai akun demo Shan (anak) di HP 1, dan Bu Putri (orang tua) di HP 2
-3. Di HP anak: tekan **Bicara → pilih topik → Saya Siap Berdiskusi**
-4. Dalam ±3 detik, HP orang tua akan bergetar & menampilkan pop-up "Shan siap berdiskusi!" 🎉
-5. Install sebagai aplikasi: **Profil → Install PathFinder**, atau lewat menu browser **"Tambahkan ke layar utama"**
+Yang benar: ada `<VirtualHost *:443>` dengan `ServerName pathfind.my.id`, rantai sertifikat
+Let's Encrypt dengan `Verify return code: 0 (ok)`, dan judul `Masuk · PathFinder AI`.
+
+> Catatan: tes ke `127.0.0.1:443` akan menampilkan sertifikat contoh `template-webuzo`. Itu normal,
+> karena vhost domain terikat ke IP internal `172.16.0.178`.
+>
+> Kalau browser di laptop tetap "Not secure" padahal tertulis *Certificate is valid*, biasanya Chrome
+> masih mengingat izin "Proceed" sebelumnya. Tes di HP (data seluler) atau buka `chrome://restart`.
 
 ---
 
 ## 🔄 Update aplikasi (setelah ada perubahan kode)
 
 ```bash
-cd /var/www/pathfinder
-git pull
-npm ci
-npm run build
-pm2 restart pathfinder
+cd /var/www/pathfinder && export NVM_DIR="$HOME/.nvm" && . "$NVM_DIR/nvm.sh" && git pull && npm ci && npm run build && pm2 restart pathfinder
 ```
+
+## 🎤 Sebelum hari lomba
+
+```bash
+cd /var/www/pathfinder && npm run seed
+```
+
+Data demo (Shan & Bu Putri, kode keluarga `PATH07`) dibuat ulang, dengan riwayat 2 minggu terakhir
+dihitung dari hari itu. Setelah lomba, ubah `DEMO_MODE=false` di `.env` lalu `pm2 restart pathfinder`.
+
+## 🔑 Ganti API key Gemini
+
+Hapus key lama di https://aistudio.google.com/apikey, buat yang baru, masukkan dengan perintah
+`read -rp "API KEY: " ...` di langkah 4, lalu `pm2 restart pathfinder`.
 
 ## 💾 Backup database
 
-Semua data ada di satu file: `data/pathfinder.db`. Backup secara rutin:
-
 ```bash
-cp data/pathfinder.db ~/backup-pathfinder-$(date +%F).db
+cp /var/www/pathfinder/data/pathfinder.db ~/backup-pathfinder-$(date +%F).db
 ```
 
 ## 🩺 Kalau ada masalah
 
 | Masalah | Solusi |
 |---|---|
-| `pm2 status` menunjukkan *errored* | Jalankan `pm2 logs pathfinder` untuk melihat errornya |
-| Error `better-sqlite3` waktu `npm ci` | Pastikan langkah 2 (python3, make, g++) sudah dijalankan, lalu ulangi `npm ci` |
-| Error `NODE_MODULE_VERSION` | Versi Node berubah. Jalankan `npm rebuild better-sqlite3` |
-| Halaman 502 Bad Gateway | Aplikasi mati atau port salah. Cek `pm2 status` dan pastikan proxy mengarah ke port 3000 |
-| Login tidak "nempel" | Pastikan situs dibuka lewat HTTPS dan proxy meneruskan header `X-Forwarded-Proto` |
-| Tombol install PWA tidak muncul | Wajib HTTPS. Coba buka di Chrome Android |
-| Gemini tidak jalan | Cek `GEMINI_API_KEY`, lalu `pm2 restart pathfinder`. Aplikasi tetap jalan pakai AI simulasi |
+| `ssh: connect ... port 22: Connection refused` | Pakai port forward: `ssh -p 52400 root@101.50.1.15` |
+| `The token '&&' is not a valid statement separator` | Perintah dijalankan di PowerShell laptop, belum SSH ke VPS |
+| Login console VNC selalu `Login incorrect` | Paste tidak berfungsi di console. Pakai SSH dan paste dengan klik kanan |
+| `pm2 status` → `errored` | `pm2 logs pathfinder` untuk melihat error |
+| `https://` menampilkan halaman awan Webuzo | Sertifikat belum di-**Install** (langkah 9.2) |
+| `ERR_CONNECTION_CLOSED` di satu perangkat saja | DNS perangkat/router masih menyimpan IP lama. Tunggu atau ganti jaringan |
+| Gemini tidak jalan | Cek `GEMINI_API_KEY` di `.env`, lalu `pm2 restart pathfinder`. Aplikasi tetap jalan dengan AI simulasi |
