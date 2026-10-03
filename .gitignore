@@ -1,5 +1,21 @@
-# Object file
-*.o
+# dependencies
+node_modules/
 
-# Ada Library Information
-*.ali
+# next.js
+.next/
+out/
+next-env.d.ts
+*.tsbuildinfo
+
+# database lokal (jangan di-commit: berisi data pengguna)
+data/*.db
+data/*.db-*
+
+# env (berisi API key rahasia)
+.env
+.env.local
+.env.*.local
+
+# logs & misc
+npm-debug.log*
+.DS_Store
