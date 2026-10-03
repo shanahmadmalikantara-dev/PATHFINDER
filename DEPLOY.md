@@ -124,7 +124,7 @@ Kalau menu proxy tidak ketemu, ambil screenshot menu Webuzo kamu dan tanyakan. T
 1. Buka `https://domainmu.com` di HP
 2. Login pakai akun demo Shan (anak) di HP 1, dan Bu Putri (orang tua) di HP 2
 3. Di HP anak: tekan **Bicara → pilih topik → Saya Siap Berdiskusi**
-4. Dalam ±20 detik, HP orang tua akan menampilkan "Shan siap berdiskusi!" 🎉
+4. Dalam ±3 detik, HP orang tua akan bergetar & menampilkan pop-up "Shan siap berdiskusi!" 🎉
 5. Install sebagai aplikasi: **Profil → Install PathFinder**, atau lewat menu browser **"Tambahkan ke layar utama"**
 
 ---

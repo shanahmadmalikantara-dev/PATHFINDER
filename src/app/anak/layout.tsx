@@ -7,7 +7,7 @@ export default async function ChildLayout({ children }: { children: React.ReactN
   const me = await requireRole("child");
   const notices: Notice[] = [];
   const talk = getActiveTalk(me.id);
-  if (talk?.parent_response) notices.push({ text: `💬 Orang tuamu membalas: “${talk.parent_response}”`, href: "/anak/bicara" });
+  if (talk?.parent_response) notices.push({ text: `💬 Orang tuamu membalas: “${talk.parent_response}”`, href: "/anak/bicara", alert: true });
   if (!getTodayCheckin(me.id)) notices.push({ text: "⏱️ Kamu belum check-in hari ini. Cuma 1 menit kok!", href: "/anak/checkin" });
   const fam = getFamily(me.family_id);
   if (fam && fam.members.filter((m) => m.role === "parent").length === 0)

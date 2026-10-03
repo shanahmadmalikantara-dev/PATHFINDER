@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Bell, Home, Lock, MessagesSquare, Route, Smile, User, Settings, ShieldCheck, X } from "lucide-react";
 import { Logo, LogoMark } from "./Logo";
 
@@ -27,6 +27,8 @@ const NAV: Record<Role, { href: string; label: string; icon: React.ElementType }
 export interface Notice {
   text: string;
   href: string;
+  /** true = kabar penting yang memunculkan pop-up + getar saat baru datang */
+  alert?: boolean;
 }
 
 export default function AppShell({
@@ -45,6 +47,26 @@ export default function AppShell({
   const pathname = usePathname();
   const nav = NAV[role];
   const [open, setOpen] = useState(false);
+  const [toast, setToast] = useState<Notice | null>(null);
+  const seen = useRef<Set<string> | null>(null);
+
+  // Munculkan pop-up saat ada kabar penting BARU (misal: anak siap berdiskusi)
+  useEffect(() => {
+    const alerts = notices.filter((n) => n.alert);
+    if (seen.current === null) {
+      seen.current = new Set(alerts.map((n) => n.text));
+      return;
+    }
+    const fresh = alerts.find((n) => !seen.current!.has(n.text));
+    alerts.forEach((n) => seen.current!.add(n.text));
+    if (!fresh) return;
+    setToast(fresh);
+    // Browser hanya mengizinkan getar setelah pengguna pernah menyentuh layar
+    if (navigator.userActivation?.hasBeenActive) navigator.vibrate?.([120, 60, 120]);
+    const t = setTimeout(() => setToast(null), 6000);
+    return () => clearTimeout(t);
+  }, [notices]);
+
   const isActive = (href: string) => (href === nav[0].href ? pathname === href : pathname.startsWith(href));
 
   return (
@@ -157,6 +179,23 @@ export default function AppShell({
       {/* ===== Konten ===== */}
       <main className="mx-auto max-w-6xl px-4 pt-5 pb-28 sm:px-6 lg:pb-12">{children}</main>
       </div>
+
+      {/* ===== Pop-up kabar penting ===== */}
+      {toast && (
+        <div className="fixed inset-x-0 top-3 z-50 flex justify-center px-4">
+          <Link
+            href={toast.href}
+            onClick={() => setToast(null)}
+            className="animate-pop flex w-full max-w-md items-center gap-3 rounded-2xl bg-ink px-4 py-3.5 text-sm font-medium text-white shadow-2xl"
+          >
+            <span className="grid size-9 shrink-0 place-items-center rounded-full bg-primary">
+              <Bell size={17} />
+            </span>
+            <span className="flex-1">{toast.text}</span>
+            <span className="text-xs font-bold text-primary-soft">Buka →</span>
+          </Link>
+        </div>
+      )}
 
       {/* ===== Bottom nav (HP) ===== */}
       <nav className="pb-safe fixed inset-x-0 bottom-0 z-30 border-t border-line bg-white/95 backdrop-blur lg:hidden">

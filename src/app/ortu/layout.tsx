@@ -8,7 +8,7 @@ export default async function ParentLayout({ children }: { children: React.React
   const notices: Notice[] = [];
   for (const c of getChildren(me.family_id)) {
     const t = getActiveTalk(c.id);
-    if (t?.status === "menunggu") notices.push({ text: `✨ ${c.name} siap berdiskusi: ${(JSON.parse(t.topics) as string[]).join(", ")}`, href: "/ortu/bicara" });
+    if (t?.status === "menunggu") notices.push({ text: `✨ ${c.name} siap berdiskusi: ${(JSON.parse(t.topics) as string[]).join(", ")}`, href: "/ortu/bicara", alert: true });
   }
   const fam = getFamily(me.family_id);
   if (fam && !fam.members.some((m) => m.role === "child"))
