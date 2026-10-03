@@ -1,0 +1,105 @@
+@import "tailwindcss";
+
+/* ===== Design tokens (diambil dari desain UI PathFinder) ===== */
+@theme {
+  --font-sans: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
+
+  --color-bg: #f3f8fc;
+  --color-ink: #1d2a31;
+  --color-muted: #5d6a72;
+  --color-line: #e2ebf1;
+  --color-sky: #e9f4fb;
+
+  --color-coral: #ff7a59;
+  --color-coral-600: #f0613f;
+  --color-coral-700: #b4361b;
+  --color-coral-100: #ffe3d9;
+  --color-coral-50: #fff3ee;
+
+  --color-teal: #1b6b63;
+  --color-teal-700: #134f49;
+  --color-teal-300: #8ee3d6;
+  --color-teal-100: #d3f4ee;
+  --color-teal-50: #ebfaf7;
+
+  --color-violet: #4b3ba8;
+  --color-violet-100: #e6e1ff;
+  --color-violet-50: #f3f0ff;
+
+  --color-amber: #f5a524;
+}
+
+/* Warna utama berganti sesuai mode (Dual-Mode UI) */
+@theme inline {
+  --color-primary: var(--primary);
+  --color-primary-strong: var(--primary-strong);
+  --color-primary-soft: var(--primary-soft);
+  --color-primary-faint: var(--primary-faint);
+}
+
+:root,
+[data-role="child"] {
+  --primary: var(--color-coral);
+  --primary-strong: var(--color-coral-700);
+  --primary-soft: var(--color-coral-100);
+  --primary-faint: var(--color-coral-50);
+}
+[data-role="parent"] {
+  --primary: var(--color-teal);
+  --primary-strong: var(--color-teal-700);
+  --primary-soft: var(--color-teal-100);
+  --primary-faint: var(--color-teal-50);
+}
+
+html {
+  -webkit-tap-highlight-color: transparent;
+}
+body {
+  background: var(--color-bg);
+  color: var(--color-ink);
+}
+
+/* Komponen kecil yang bisa dipakai ulang */
+@utility card {
+  @apply rounded-3xl bg-white p-5 shadow-[0_1px_2px_rgba(16,40,60,.04),0_8px_24px_-12px_rgba(16,40,60,.12)] sm:p-6;
+}
+@utility chip {
+  @apply inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold whitespace-nowrap;
+}
+@utility btn {
+  @apply inline-flex items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-semibold transition active:scale-[.98] disabled:cursor-not-allowed disabled:opacity-50;
+}
+@utility btn-primary {
+  @apply btn bg-primary text-white shadow-[0_10px_24px_-10px_var(--primary)] hover:brightness-105;
+}
+@utility btn-soft {
+  @apply btn bg-primary-faint text-primary-strong hover:bg-primary-soft;
+}
+@utility btn-ghost {
+  @apply btn bg-white text-ink ring-1 ring-line hover:bg-sky;
+}
+@utility input {
+  @apply w-full rounded-2xl border border-line bg-white px-4 py-3 text-sm outline-none transition placeholder:text-muted/60 focus:border-primary focus:ring-4 focus:ring-primary-soft;
+}
+@utility label {
+  @apply mb-1.5 block text-xs font-semibold text-ink;
+}
+@utility eyebrow {
+  @apply text-[11px] font-bold tracking-[.12em] uppercase;
+}
+
+/* Animasi kecil */
+@keyframes pf-pop {
+  0% { transform: scale(.96); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+.animate-pop { animation: pf-pop .25s ease-out both; }
+
+@keyframes pf-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+.animate-float { animation: pf-float 5s ease-in-out infinite; }
+
+/* Safe area untuk HP berponi (PWA standalone) */
+.pb-safe { padding-bottom: max(env(safe-area-inset-bottom), 0.5rem); }
