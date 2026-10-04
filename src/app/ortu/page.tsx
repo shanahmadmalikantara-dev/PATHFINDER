@@ -12,6 +12,7 @@ import { energyLabel } from "@/lib/constants";
 import { EnergyChart, ProgressBar, ProgressRing } from "@/components/Charts";
 import CopyCode from "@/components/CopyCode";
 import CapabilityPicker from "./CapabilityPicker";
+import PartnerLogos from "@/components/PartnerLogos";
 
 export const metadata = { title: "Beranda Orang Tua" };
 
@@ -204,6 +205,8 @@ export default async function ParentHome({ searchParams }: { searchParams: Promi
           ))}
         </div>
       </section>
+
+      <PartnerLogos className="card" />
 
       <p className="flex items-center justify-center gap-2 pb-4 text-center text-xs text-muted">
         <BookOpen size={14} /> Insight ini membantu Anda memahami, bukan mengawasi. <HeartHandshake size={14} />

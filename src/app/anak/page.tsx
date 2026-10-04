@@ -7,6 +7,7 @@ import { greeting, today, weekStart } from "@/lib/dates";
 import { childCompanion } from "@/lib/insight";
 import { ProgressBar } from "@/components/Charts";
 import QuickCheckin from "./QuickCheckin";
+import PartnerLogos from "@/components/PartnerLogos";
 
 export const metadata = { title: "Beranda" };
 
@@ -141,6 +142,8 @@ export default async function ChildHome() {
           </section>
         </div>
       </div>
+
+      <PartnerLogos className="card" />
     </div>
   );
 }

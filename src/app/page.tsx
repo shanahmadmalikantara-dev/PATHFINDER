@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { ArrowRight, Heart, Lock, ShieldCheck, Smile, Sparkles } from "lucide-react";
 import { getUser, homeFor } from "@/lib/auth";
 import { LogoMark } from "@/components/Logo";
+import PartnerLogos from "@/components/PartnerLogos";
 
 export default async function Landing() {
   const user = await getUser();
@@ -81,6 +82,7 @@ export default async function Landing() {
         <p className="mt-8 flex items-center gap-2 text-sm text-muted">
           <Lock size={14} className="text-violet" /> Privasi & Otonomi Dijaga Sepenuhnya
         </p>
+        <PartnerLogos className="mt-10 w-full rounded-3xl bg-white/80 px-5 py-6 shadow-sm backdrop-blur" />
       </main>
     </div>
   );
