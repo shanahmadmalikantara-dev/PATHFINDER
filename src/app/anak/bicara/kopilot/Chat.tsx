@@ -41,7 +41,11 @@ export default function Chat({ mode, name, ai }: { mode: "bicara" | "rencana"; n
       sessionStorage.setItem(storeKey(mode), JSON.stringify(msgs.slice(-30)));
     } catch {}
   }, [msgs, mode]);
-  useEffect(() => end.current?.scrollIntoView({ behavior: "smooth", block: "end" }), [msgs, pending]);
+  // Pakai kurung kurawal: di Chrome terbaru scrollIntoView() mengembalikan Promise, dan React
+  // akan mencoba memanggil nilai balik useEffect sebagai fungsi cleanup (crash "u is not a function").
+  useEffect(() => {
+    end.current?.scrollIntoView({ behavior: "smooth", block: "end" });
+  }, [msgs, pending]);
 
   const send = (text: string) => {
     const t = text.trim();
