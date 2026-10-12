@@ -211,7 +211,10 @@ export default function Planner({ name, grade, ai }: { name: string; grade: stri
           {path && (
             <div className="grid gap-5 lg:grid-cols-[1.4fr_1fr]">
               <section className="card space-y-4">
-                <p className="flex items-center gap-2 font-bold"><Flag size={18} className="text-coral-700" /> Milestone berurutan <span className="text-xs font-normal text-muted">(hapus centang yang tidak mau diambil)</span></p>
+                <div>
+                  <p className="flex items-center gap-2 font-bold"><Flag size={18} className="text-coral-700" /> Milestone berurutan</p>
+                  <p className="mt-0.5 text-xs text-muted">Hapus centang yang tidak mau diambil.</p>
+                </div>
                 <ol className="space-y-3">
                   {path.steps.map((s, i) => {
                     const on = steps.has(i);
@@ -251,7 +254,7 @@ export default function Planner({ name, grade, ai }: { name: string; grade: stri
                     const on = habits.has(i);
                     return (
                       <label key={i} className={`flex cursor-pointer items-center gap-3 rounded-2xl p-3 ring-1 ${on ? "bg-white ring-teal/30" : "bg-sky/60 ring-line opacity-60"}`}>
-                        <input type="checkbox" checked={on} onChange={() => toggle(habits, setHabits, i)} className="size-4 accent-[var(--color-teal)]" />
+                        <input type="checkbox" checked={on} onChange={() => toggle(habits, setHabits, i)} className="size-4 shrink-0 accent-[var(--color-teal)]" />
                         <IconBadge v={CATEGORY_VISUAL[h.category]} size={16} box={32} rounded="rounded-xl" />
                         <span className="flex-1 text-sm"><b>{h.title}</b><br /><span className="text-xs text-muted">{h.target} {h.unit} per minggu</span></span>
                       </label>
@@ -267,7 +270,7 @@ export default function Planner({ name, grade, ai }: { name: string; grade: stri
                       {plan.opportunities.map((o) => (
                         <li key={o.name} className="rounded-2xl bg-sky p-3 text-sm">
                           <b>{o.name}</b>
-                          {o.window && <p className="mt-0.5 flex items-center gap-1.5 text-xs font-semibold text-coral-700"><CalendarRange size={12} /> {o.window}</p>}
+                          {o.window && <p className="mt-0.5 flex items-center gap-1.5 text-xs font-semibold text-coral-700"><CalendarRange size={12} className="shrink-0" /> {o.window}</p>}
                           {o.why && <p className="mt-1 text-muted">{o.why}</p>}
                         </li>
                       ))}
@@ -281,7 +284,7 @@ export default function Planner({ name, grade, ai }: { name: string; grade: stri
 
           <section className="card space-y-4">
             <label className="flex items-start gap-3 rounded-2xl bg-teal-50 p-3 text-sm">
-              <input type="checkbox" checked={shared} onChange={(e) => setShared(e.target.checked)} className="mt-1 size-4 accent-[var(--color-teal)]" />
+              <input type="checkbox" checked={shared} onChange={(e) => setShared(e.target.checked)} className="mt-1 size-4 shrink-0 accent-[var(--color-teal)]" />
               <span><b className="flex items-center gap-1.5"><Users size={14} /> Jadikan Agenda Bersama</b><span className="text-xs text-muted">Orang tua bisa melihat milestone ini dan mendapat saran cara mendukungmu. Kalau tidak dicentang, semuanya tetap pribadi.</span></span>
             </label>
             {err && <p className="text-sm font-medium text-coral-700">{err}</p>}

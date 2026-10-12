@@ -24,12 +24,12 @@ export default function CopyCode({ code }: { code: string }) {
   };
   return (
     <div className="space-y-3">
-      <div className="flex justify-center gap-1.5 sm:justify-start">
+      <div className="flex justify-center gap-1 sm:justify-start sm:gap-1.5">
         {code.split("").map((c, i) => (
-          <span key={i} className="grid h-12 w-10 place-items-center rounded-xl bg-white font-mono text-xl font-bold text-primary-strong shadow-sm">{c}</span>
+          <span key={i} className="grid h-11 w-9 place-items-center sm:h-12 sm:w-10 rounded-xl bg-white font-mono text-xl font-bold text-primary-strong shadow-sm">{c}</span>
         ))}
       </div>
-      <div className="flex gap-2">
+      <div className="flex flex-wrap gap-2">
         <button onClick={copy} className="chip bg-white px-3 py-2 text-ink shadow-sm"><Copy size={13} /> {copied ? "Tersalin!" : "Salin Kode"}</button>
         <button onClick={share} className="chip bg-white px-3 py-2 text-ink shadow-sm"><Share2 size={13} /> Bagikan Undangan</button>
       </div>

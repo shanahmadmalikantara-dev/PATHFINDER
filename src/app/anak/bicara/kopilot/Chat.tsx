@@ -98,7 +98,7 @@ export default function Chat({ mode, name, ai }: { mode: "bicara" | "rencana"; n
         {msgs.length === 1 && (
           <div className="flex flex-wrap gap-2 pt-2">
             {SUGGEST[mode].map((s) => (
-              <button key={s} onClick={() => send(s)} className="chip bg-sky px-3 py-2 text-left text-sm text-ink/80 hover:bg-violet-50">{s}</button>
+              <button key={s} onClick={() => send(s)} className="chip bg-sky px-3 py-2 text-left text-sm whitespace-normal text-ink/80 hover:bg-violet-50">{s}</button>
             ))}
           </div>
         )}
@@ -110,7 +110,7 @@ export default function Chat({ mode, name, ai }: { mode: "bicara" | "rencana"; n
         <button disabled={pending || !input.trim()} className="btn-primary aspect-square w-12 px-0" aria-label="Kirim"><Send size={18} /></button>
       </form>
       <p className="mt-2 flex items-center justify-center gap-1.5 text-center text-[11px] text-muted">
-        <ShieldCheck size={12} /> Kopilot bukan psikolog. Jika kamu merasa tidak aman, hubungi orang dewasa tepercaya atau SEJIWA 119 ext 8.
+        <ShieldCheck size={12} className="shrink-0" /> Kopilot bukan psikolog. Jika kamu merasa tidak aman, hubungi orang dewasa tepercaya atau SEJIWA 119 ext 8.
       </p>
     </div>
   );

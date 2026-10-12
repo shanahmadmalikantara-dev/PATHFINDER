@@ -55,11 +55,20 @@ export interface ApplySelection {
 /** Langkah 2: anak memilih jalur & milestone → langsung masuk roadmap + target minggu ini. */
 export async function applyPlan(sel: ApplySelection): Promise<{ ok?: string; error?: string }> {
   const me = await requireRole("child");
-  const steps = (Array.isArray(sel?.steps) ? sel.steps : []).slice(0, 8).filter((s) => clip(s?.title, 80).length >= 3);
+  let steps = (Array.isArray(sel?.steps) ? sel.steps : []).slice(0, 8).filter((s) => clip(s?.title, 80).length >= 3);
   const habits = (Array.isArray(sel?.habits) ? sel.habits : []).slice(0, 4).filter((h) => clip(h?.title, 60).length >= 2);
   if (!steps.length) return { error: "Pilih minimal satu milestone dulu ya." };
   const dream = clip(sel.dream, 120) || null;
   const shared = sel.shared ? 1 : 0;
+
+  // Lewati milestone yang sudah ada di roadmap supaya menyimpan ulang rencana yang sama tidak membuat data dobel
+  const existing = new Set(
+    (db.prepare("SELECT title FROM milestones WHERE child_id = ?").all(me.id) as { title: string }[]).map((m) => m.title.trim().toLowerCase()),
+  );
+  const total = steps.length;
+  steps = steps.filter((s) => !existing.has(clip(s.title, 80).toLowerCase()));
+  if (!steps.length) return { error: "Semua milestone ini sudah ada di roadmap-mu. Cek halaman Roadmap ya." };
+  const dupes = total - steps.length;
 
   const result = db.transaction(() => {
     let pos = (db.prepare("SELECT COALESCE(MAX(position), 0) p FROM milestones WHERE child_id = ?").get(me.id) as { p: number }).p;
@@ -119,7 +128,8 @@ export async function applyPlan(sel: ApplySelection): Promise<{ ok?: string; err
   revalidatePath("/", "layout");
   const extra = result.goals ? ` dan ${result.goals} target minggu ini` : "";
   const note = result.skipped ? ` (${result.skipped} kebiasaan tidak masuk karena target minggu ini sudah penuh)` : "";
-  return { ok: `${steps.length} milestone${extra} sudah masuk ke rencanamu${note}.` };
+  const dupeNote = dupes ? ` ${dupes} milestone dilewati karena sudah ada di roadmap.` : "";
+  return { ok: `${steps.length} milestone${extra} sudah masuk ke rencanamu${note}.${dupeNote}` };
 }
 
 /** Centang/batal centang satu tugas di checklist milestone. */
