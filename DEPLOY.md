@@ -132,6 +132,28 @@ curl -s -o /dev/null -w "TES DOMAIN: %{http_code}\n" -H "Host: pathfind.my.id" h
 
 Harus muncul `Syntax OK` dan `TES DOMAIN: 200`. (Peringatan `AH00316 MaxRequestWorkers` boleh diabaikan.)
 
+**Wajib di VPS kecil: batasi thread Apache.** Bawaan Webuzo menyiapkan Apache untuk ratusan
+pengunjung sekaligus (sekitar 390 thread), padahal VPS NAT punya batas jumlah thread. Kalau batas
+itu habis, semua perintah gagal dengan `fork: Resource temporarily unavailable`. Pasang batas ini:
+
+```bash
+cat > /usr/local/apps/apache2/etc/conf.d/zz-pathfinder-mpm.conf <<'EOF'
+# PathFinder: batasi thread Apache supaya VPS tidak kehabisan slot proses
+<IfModule mpm_worker_module>
+  ServerLimit         4
+  StartServers        1
+  ThreadsPerChild     10
+  MinSpareThreads     5
+  MaxSpareThreads     20
+  MaxRequestWorkers   40
+</IfModule>
+EOF
+/usr/local/apps/apache2/bin/httpd -t && /usr/local/apps/apache2/bin/apachectl -k stop; sleep 10; echo "Thread Apache: $(ps -eLf | grep -c [h]ttpd)"
+```
+
+Webuzo menyalakan Apache lagi secara otomatis setelah di-stop (`systemctl restart httpd` tidak bisa,
+unit-nya tidak ada). Angka thread Apache harus sekitar 20–30, bukan ratusan.
+
 ## 9. Pasang SSL (Let's Encrypt) lewat Webuzo
 
 Login panel user: `https://pathfind.my.id:2003` (user `pathfind`).
@@ -199,4 +221,5 @@ cp /var/www/pathfinder/data/pathfinder.db ~/backup-pathfinder-$(date +%F).db
 | `pm2 status` → `errored` | `pm2 logs pathfinder` untuk melihat error |
 | `https://` menampilkan halaman awan Webuzo | Sertifikat belum di-**Install** (langkah 9.2) |
 | `ERR_CONNECTION_CLOSED` di satu perangkat saja | DNS perangkat/router masih menyimpan IP lama. Tunggu atau ganti jaringan |
+| Semua perintah gagal `fork: Resource temporarily unavailable` | Apache memakai terlalu banyak thread. Lihat "Wajib di VPS kecil" di langkah 8. Kalau perintah biasa pun ditolak, cek dulu pemakaian thread tanpa membuat proses baru: `for p in /proc/[0-9]*; do read -r n < "$p/comm"; echo "$n"; done` |
 | Gemini tidak jalan | Cek `GEMINI_API_KEY` di `.env`, lalu `pm2 restart pathfinder`. Aplikasi tetap jalan dengan AI simulasi |
