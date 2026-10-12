@@ -13,7 +13,7 @@ import Database from "better-sqlite3";
 import bcrypt from "bcryptjs";
 import fs from "node:fs";
 import path from "node:path";
-import { SCHEMA } from "../src/lib/schema.mjs";
+import { SCHEMA, migrate } from "../src/lib/schema.mjs";
 
 // Muat .env sederhana (tanpa dependency tambahan)
 if (fs.existsSync(".env")) {
@@ -28,6 +28,7 @@ fs.mkdirSync(path.dirname(file), { recursive: true });
 const db = new Database(file);
 db.pragma("foreign_keys = ON");
 db.exec(SCHEMA);
+migrate(db);
 
 const TZ = "Asia/Jakarta";
 const day = (offset) => new Intl.DateTimeFormat("en-CA", { timeZone: TZ }).format(new Date(Date.now() + offset * 86400000));

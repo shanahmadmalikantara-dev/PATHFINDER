@@ -14,8 +14,8 @@ export default async function ChildProfile({ searchParams }: { searchParams: Pro
       isNew={isNew}
       settings={
         <div className="rounded-2xl bg-violet-50 p-4 text-sm">
-          <p className="font-bold text-violet">🔐 Jurnal Pribadi</p>
-          <p className="mt-1 text-xs text-muted">Jurnal tersimpan di HP ini & dikunci PIN. Kalau ganti HP atau hapus data browser, jurnal ikut terhapus — itulah harga privasi total 🤍</p>
+          <p className="font-bold text-violet">Jurnal Pribadi</p>
+          <p className="mt-1 text-xs text-muted">Jurnal tersimpan di HP ini & dikunci PIN. Kalau ganti HP atau hapus data browser, jurnal ikut terhapus — itulah harga privasi total.</p>
         </div>
       }
     />

@@ -32,7 +32,7 @@ export default function ProfileView({
 
       {isNew && family && (
         <div className="animate-pop rounded-3xl bg-gradient-to-r from-primary-soft to-sky p-5">
-          <p className="text-lg font-bold">🎉 Akun berhasil dibuat!</p>
+          <p className="text-lg font-bold">Akun berhasil dibuat!</p>
           <p className="text-sm text-ink/80">Langkah terakhir: bagikan kode keluarga di bawah ke {child ? "orang tuamu" : "anak Anda"} supaya kedua HP saling terhubung.</p>
         </div>
       )}
@@ -52,7 +52,7 @@ export default function ProfileView({
             {family ? (
               <div className="relative mt-5 grid gap-4 rounded-3xl bg-sky p-5 sm:grid-cols-2">
                 <div>
-                  <p className="eyebrow mb-2 text-muted">🔑 Kode Keluarga</p>
+                  <p className="eyebrow mb-2 text-muted">Kode Keluarga</p>
                   <CopyCode code={family.code} />
                 </div>
                 <div>
@@ -78,7 +78,7 @@ export default function ProfileView({
 
           <section className="card space-y-4">
             <div className="flex items-center justify-between">
-              <p className="flex items-center gap-2 font-bold"><span className="size-2.5 rounded-full bg-violet" /> Batas Privasi & Kepercayaan 🛡️</p>
+              <p className="flex items-center gap-2 font-bold"><span className="size-2.5 rounded-full bg-violet" /> Batas Privasi & Kepercayaan</p>
               <span className="chip bg-violet-100 text-violet">ZERO-SPYING</span>
             </div>
             <p className="text-sm text-muted">Arsitektur privasi terpisah memastikan ekspresi murni remaja tetap terlindungi tanpa menghilangkan kemampuan orang tua memberi dukungan.</p>
@@ -96,7 +96,7 @@ export default function ProfileView({
               ))}
             </div>
             <p className="rounded-2xl bg-violet-50 p-4 text-sm text-violet">
-              ℹ️ Catatan curhatan dan jurnal anak tersimpan terenkripsi di perangkat anak dan <b>tidak pernah dikirim ke server</b> maupun ditampilkan ke orang tua. Orang tua hanya menerima saran empati berbasis tren secara agregat.
+              Catatan curhatan dan jurnal anak tersimpan terenkripsi di perangkat anak dan <b>tidak pernah dikirim ke server</b> maupun ditampilkan ke orang tua. Orang tua hanya menerima saran empati berbasis tren secara agregat.
             </p>
           </section>
         </div>

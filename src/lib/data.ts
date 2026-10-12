@@ -72,6 +72,16 @@ export function getActiveTalk(childId: number): Talk | undefined {
     .get(childId) as Talk | undefined;
 }
 
+/** Topik diskusi (tersimpan sebagai JSON). */
+export function talkTopics(t: Pick<Talk, "topics">): string[] {
+  try {
+    const v = JSON.parse(t.topics);
+    return Array.isArray(v) ? v.map(String) : [];
+  } catch {
+    return [];
+  }
+}
+
 export function getTalkHistory(childId: number, limit = 5): Talk[] {
   return db
     .prepare("SELECT * FROM talks WHERE child_id = ? AND status = 'selesai' ORDER BY updated_at DESC LIMIT ?")

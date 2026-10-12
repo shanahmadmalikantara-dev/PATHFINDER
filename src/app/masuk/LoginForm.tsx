@@ -16,7 +16,7 @@ export default function LoginForm({ demo, demoMissing }: { demo: boolean; demoMi
         <form action={action} className="card space-y-4 sm:p-8">
           <Link href="/" className="mx-auto block w-fit"><LogoMark size={64} className="rounded-2xl shadow" /></Link>
           <div className="text-center">
-            <h1 className="text-2xl font-extrabold tracking-tight">Selamat datang kembali 👋</h1>
+            <h1 className="text-2xl font-extrabold tracking-tight">Selamat datang kembali</h1>
             <p className="mt-1 text-sm text-muted">Masuk ke ruang tumbuh keluargamu.</p>
           </div>
           <div>

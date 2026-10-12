@@ -1,7 +1,7 @@
 // Service worker PathFinder AI
 // - Halaman: network-first (data selalu terbaru), fallback ke cache / halaman offline
 // - Aset statis (_next/static, ikon, font): cache-first
-const VERSION = "pf-v1";
+const VERSION = "pf-v2";
 const STATIC = `${VERSION}-static`;
 const PAGES = `${VERSION}-pages`;
 const PRECACHE = ["/offline", "/icons/icon-192.png", "/icons/icon-512.png"];

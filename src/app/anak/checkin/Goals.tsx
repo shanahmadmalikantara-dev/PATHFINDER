@@ -1,11 +1,12 @@
 "use client";
 
 import { useActionState, useEffect, useRef, useState, useTransition } from "react";
-import { Minus, Plus, SlidersHorizontal, Trash2, X } from "lucide-react";
+import { Check, Minus, Plus, SlidersHorizontal, Target, Trash2, X } from "lucide-react";
 import { addGoal, changeGoal, deleteGoal } from "@/actions/child";
 import { GOAL_CATEGORIES, goalCategory } from "@/lib/constants";
 import type { Goal } from "@/lib/db";
 import { ProgressBar } from "@/components/Charts";
+import { CATEGORY_VISUAL, IconBadge, VisualIcon } from "@/components/icons";
 
 const TONE: Record<string, { bg: string; text: string; bar: string }> = {
   belajar: { bg: "bg-coral-100", text: "text-coral-700", bar: "var(--color-coral)" },
@@ -37,7 +38,7 @@ export default function Goals({ goals }: { goals: Goal[] }) {
 
       {goals.length === 0 && !adding && (
         <button onClick={() => setAdding(true)} className="card w-full border-2 border-dashed border-coral/30 text-center text-muted hover:border-coral">
-          <span className="text-3xl">🎯</span>
+          <span className="mx-auto grid size-12 place-items-center rounded-2xl bg-coral-50 text-coral-700"><Target size={24} /></span>
           <p className="mt-2 font-semibold text-ink">Buat target pertamamu minggu ini</p>
           <p className="text-sm">Contoh: Belajar UTBK 6 jam, jogging 3 sesi, 2 modul coding</p>
         </button>
@@ -62,13 +63,13 @@ function GoalCard({ g, editing }: { g: Goal; editing: boolean }) {
   return (
     <div className={`card flex flex-col gap-4 transition ${pending ? "opacity-70" : ""}`}>
       <div className="flex items-start justify-between">
-        <span className={`grid size-12 place-items-center rounded-2xl text-2xl ${tone.bg}`}>{cat.emoji}</span>
+        <IconBadge v={CATEGORY_VISUAL[g.category]} size={22} box={48} />
         {editing ? (
           <button onClick={() => confirm(`Hapus target "${g.title}"?`) && run(() => deleteGoal(g.id))} className="grid size-9 place-items-center rounded-full bg-coral-50 text-coral-700" aria-label="Hapus target">
             <Trash2 size={16} />
           </button>
         ) : (
-          <span className={`chip ${tone.bg} ${tone.text}`}>{pct >= 100 ? "Selesai ✓" : `${pct}% Selesai`}</span>
+          <span className={`chip ${tone.bg} ${tone.text}`}>{pct >= 100 ? <><Check size={12} /> Selesai</> : `${pct}% selesai`}</span>
         )}
       </div>
       <div>
@@ -96,7 +97,7 @@ function GoalCard({ g, editing }: { g: Goal; editing: boolean }) {
             <Minus size={16} />
           </button>
           <button onClick={() => run(() => changeGoal(g.id, "progress", 1))} disabled={g.progress >= g.target} className={`btn flex-1 py-2 ${tone.bg} ${tone.text}`}>
-            <Plus size={16} /> {g.progress >= g.target ? "Tercapai! 🎉" : `Catat 1 ${g.unit}`}
+            <Plus size={16} /> {g.progress >= g.target ? "Tercapai" : `Catat 1 ${g.unit}`}
           </button>
         </div>
       </div>
@@ -123,7 +124,7 @@ function AddGoal({ onClose }: { onClose: () => void }) {
     <div className="fixed inset-0 z-50 grid place-items-end bg-ink/30 backdrop-blur-sm sm:place-items-center" onClick={onClose}>
       <form ref={ref} action={action} onClick={(e) => e.stopPropagation()} className="animate-pop w-full max-w-md space-y-4 rounded-t-3xl bg-white p-6 sm:rounded-3xl">
         <div className="flex items-center justify-between">
-          <h3 className="text-lg font-bold">Target Baru 🎯</h3>
+          <h3 className="flex items-center gap-2 text-lg font-bold"><Target size={20} className="text-coral-700" /> Target baru</h3>
           <button type="button" onClick={onClose} aria-label="Tutup"><X size={20} /></button>
         </div>
         <div>
@@ -133,7 +134,7 @@ function AddGoal({ onClose }: { onClose: () => void }) {
               <label key={c.value}>
                 <input type="radio" name="category" value={c.value} defaultChecked={i === 0} className="peer sr-only" />
                 <span className="block cursor-pointer rounded-2xl border border-line py-2.5 text-center text-sm font-semibold peer-checked:border-coral peer-checked:bg-coral-50 peer-checked:text-coral-700">
-                  {c.emoji} {c.label}
+                  <span className="flex items-center justify-center gap-1.5"><VisualIcon v={CATEGORY_VISUAL[c.value]} size={15} /> {c.label}</span>
                 </span>
               </label>
             ))}

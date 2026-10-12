@@ -123,7 +123,7 @@ export default function RegisterForm({ initialRole, initialCode }: { initialRole
           </label>
           {state?.error && <p className="rounded-xl bg-coral-50 px-4 py-2 text-sm font-medium text-coral-700">{state.error}</p>}
           <button disabled={pending} className="btn-primary w-full max-w-sm py-3.5">
-            {pending ? "Membuat akun…" : "Buat Akun & Mulai Melangkah 🚀"}
+            {pending ? "Membuat akun…" : "Buat Akun & Mulai Melangkah"}
           </button>
           <p className="text-sm text-muted">
             Sudah punya akun? <Link href="/masuk" className="font-semibold text-teal">Masuk di sini</Link>

@@ -2,7 +2,7 @@ import "server-only";
 import Database from "better-sqlite3";
 import fs from "node:fs";
 import path from "node:path";
-import { SCHEMA } from "./schema.mjs";
+import { SCHEMA, migrate } from "./schema.mjs";
 
 // Satu koneksi database dipakai ulang (disimpan di globalThis agar
 // tidak membuka koneksi baru setiap kali file di-reload saat development).
@@ -15,6 +15,7 @@ function open() {
   db.pragma("journal_mode = WAL");
   db.pragma("foreign_keys = ON");
   db.exec(SCHEMA);
+  migrate(db);
   return db;
 }
 
@@ -54,6 +55,7 @@ export interface Goal {
   target: number;
   unit: string;
   progress: number;
+  milestone_id: number | null;
 }
 
 export interface Milestone {
@@ -65,6 +67,10 @@ export interface Milestone {
   status: "rencana" | "berjalan" | "selesai";
   target_date: string | null;
   shared: number;
+  tasks: string | null;
+  dream: string | null;
+  priority: number;
+  period: string | null;
   xp: number;
   position: number;
   done_at: string | null;
@@ -77,8 +83,11 @@ export interface Talk {
   topics: string;
   preferred_time: string;
   status: "menunggu" | "disepakati" | "ditunda" | "selesai" | "dibatalkan";
-  parent_id: number | null;
-  parent_response: string | null;
+  initiator: "child" | "parent";
+  initiator_id: number | null;
+  note: string | null;
+  responder_id: number | null;
+  response: string | null;
   outcome: string | null;
   created_at: string;
   updated_at: string;

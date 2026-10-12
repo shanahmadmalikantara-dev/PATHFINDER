@@ -262,53 +262,53 @@ type PlanGroup = "lelah" | "arah" | "semangat";
 const PLANS: Record<PlanGroup, Record<Capability, (n: string) => PlanStep[]>> = {
   lelah: {
     sibuk: (n) => [
-      { title: "Pesan Singkat Hangat", minutes: "~1 mnt", body: `Kirim pesan pendek ke ${n}: “Semangat ya hari ini, jangan lupa makan 🤍” — tanpa pertanyaan soal tugas.`, tag: "💌 Rasa diperhatikan" },
-      { title: "Sentuhan Perhatian Kecil", minutes: "~2 mnt", body: "Saat bertemu, tepuk pundaknya perlahan atau bawakan segelas air hangat. Gestur kecil sudah cukup.", tag: "🤲 Bahasa kasih tindakan" },
-      { title: "Jangan Tambah Beban", minutes: "0 mnt", body: "Tunda dulu permintaan tugas rumah tambahan atau pertanyaan tentang nilai hari ini.", tag: "🛡️ Ruang pulih" },
+      { title: "Pesan Singkat Hangat", minutes: "~1 mnt", body: `Kirim pesan pendek ke ${n}: “Semangat ya hari ini, jangan lupa makan.” — tanpa pertanyaan soal tugas.`, tag: "Rasa diperhatikan" },
+      { title: "Sentuhan Perhatian Kecil", minutes: "~2 mnt", body: "Saat bertemu, tepuk pundaknya perlahan atau bawakan segelas air hangat. Gestur kecil sudah cukup.", tag: "Bahasa kasih tindakan" },
+      { title: "Jangan Tambah Beban", minutes: "0 mnt", body: "Tunda dulu permintaan tugas rumah tambahan atau pertanyaan tentang nilai hari ini.", tag: "Ruang pulih" },
     ],
     sedikit: (n) => [
-      { title: "Koneksi Cepat Tanpa Beban", minutes: "~10 mnt", body: `Luangkan 10 menit saat makan malam untuk bertanya hal ringan: “Momen apa yang paling bikin kamu ketawa di sekolah hari ini?”`, tag: "😊 Memicu emosi positif" },
-      { title: "Sentuhan Perhatian Kecil", minutes: "~5 mnt", body: `Bawakan potongan buah segar atau minuman hangat ke meja belajar ${n}, tepuk pundaknya perlahan, lalu berikan ia ruang.`, tag: "🤲 Bahasa kasih tindakan" },
-      { title: "Dengarkan Tanpa Langsung Memberi Solusi", minutes: "~10 mnt", body: "Bila ia bercerita, cukup anggukkan dan validasi perasaannya: “Pasti berat ya rasanya berada di posisi itu…”", tag: "🫶 Membangun rasa aman" },
+      { title: "Koneksi Cepat Tanpa Beban", minutes: "~10 mnt", body: `Luangkan 10 menit saat makan malam untuk bertanya hal ringan: “Momen apa yang paling bikin kamu ketawa di sekolah hari ini?”`, tag: "Memicu emosi positif" },
+      { title: "Sentuhan Perhatian Kecil", minutes: "~5 mnt", body: `Bawakan potongan buah segar atau minuman hangat ke meja belajar ${n}, tepuk pundaknya perlahan, lalu berikan ia ruang.`, tag: "Bahasa kasih tindakan" },
+      { title: "Dengarkan Tanpa Langsung Memberi Solusi", minutes: "~10 mnt", body: "Bila ia bercerita, cukup anggukkan dan validasi perasaannya: “Pasti berat ya rasanya berada di posisi itu…”", tag: "Membangun rasa aman" },
     ],
     banyak: (n) => [
-      { title: "Waktu Santai Bersama", minutes: "~30 mnt", body: `Ajak ${n} melakukan hal yang ia suka tanpa agenda: jalan sore, masak camilan, atau nonton film pilihannya.`, tag: "🎬 Kebersamaan" },
-      { title: "Obrolan Ringan Sambil Beraktivitas", minutes: "~20 mnt", body: "Ngobrol sambil melakukan sesuatu (menyetir, memasak) terasa lebih santai dibanding duduk berhadapan.", tag: "🚗 Tanpa tekanan" },
-      { title: "Bantu Atur Ulang Minggu Depan", minutes: "~15 mnt", body: "Tawarkan bantuan menyusun jadwal yang menyisakan waktu istirahat. Biarkan ia yang memutuskan.", tag: "🗓️ Kemandirian" },
+      { title: "Waktu Santai Bersama", minutes: "~30 mnt", body: `Ajak ${n} melakukan hal yang ia suka tanpa agenda: jalan sore, masak camilan, atau nonton film pilihannya.`, tag: "Kebersamaan" },
+      { title: "Obrolan Ringan Sambil Beraktivitas", minutes: "~20 mnt", body: "Ngobrol sambil melakukan sesuatu (menyetir, memasak) terasa lebih santai dibanding duduk berhadapan.", tag: "Tanpa tekanan" },
+      { title: "Bantu Atur Ulang Minggu Depan", minutes: "~15 mnt", body: "Tawarkan bantuan menyusun jadwal yang menyisakan waktu istirahat. Biarkan ia yang memutuskan.", tag: "Kemandirian" },
     ],
   },
   arah: {
     sibuk: (n) => [
-      { title: "Satu Pertanyaan Terbuka", minutes: "~2 mnt", body: `Tanyakan satu hal saja ke ${n}: “Apa satu hal yang pengen kamu selesaikan besok?”`, tag: "🧭 Fokus" },
-      { title: "Apresiasi Usaha", minutes: "~1 mnt", body: "Sebutkan satu usaha yang Anda lihat darinya minggu ini, sekecil apa pun.", tag: "⭐ Motivasi" },
-      { title: "Tawarkan Bantuan", minutes: "~1 mnt", body: "“Kalau butuh bantuan apa-apa, bilang aja ya.” — lalu tepati bila ia meminta.", tag: "🤝 Kepercayaan" },
+      { title: "Satu Pertanyaan Terbuka", minutes: "~2 mnt", body: `Tanyakan satu hal saja ke ${n}: “Apa satu hal yang pengen kamu selesaikan besok?”`, tag: "Fokus" },
+      { title: "Apresiasi Usaha", minutes: "~1 mnt", body: "Sebutkan satu usaha yang Anda lihat darinya minggu ini, sekecil apa pun.", tag: "Motivasi" },
+      { title: "Tawarkan Bantuan", minutes: "~1 mnt", body: "“Kalau butuh bantuan apa-apa, bilang aja ya.” — lalu tepati bila ia meminta.", tag: "Kepercayaan" },
     ],
     sedikit: (n) => [
-      { title: "Pecah Target Bersama", minutes: "~10 mnt", body: `Ajak ${n} memilih satu target terpenting minggu ini dan pecah jadi langkah 15 menit.`, tag: "🧩 Langkah kecil" },
-      { title: "Tanya Hambatan, Bukan Hasil", minutes: "~5 mnt", body: "“Apa yang bikin susah mulai?” lebih membantu daripada “Kenapa belum selesai?”", tag: "💬 Dialog" },
-      { title: "Sepakati Waktu Cek Santai", minutes: "~5 mnt", body: "Buat kesepakatan kecil kapan ngobrol lagi, misalnya Jumat malam sambil makan.", tag: "🤝 Kolaborasi" },
+      { title: "Pecah Target Bersama", minutes: "~10 mnt", body: `Ajak ${n} memilih satu target terpenting minggu ini dan pecah jadi langkah 15 menit.`, tag: "Langkah kecil" },
+      { title: "Tanya Hambatan, Bukan Hasil", minutes: "~5 mnt", body: "“Apa yang bikin susah mulai?” lebih membantu daripada “Kenapa belum selesai?”", tag: "Dialog" },
+      { title: "Sepakati Waktu Cek Santai", minutes: "~5 mnt", body: "Buat kesepakatan kecil kapan ngobrol lagi, misalnya Jumat malam sambil makan.", tag: "Kolaborasi" },
     ],
     banyak: (n) => [
-      { title: "Eksplorasi Minat Bersama", minutes: "~45 mnt", body: `Cari info bareng ${n} tentang jurusan, kegiatan, atau profesi yang ia minati — biarkan ia memimpin.`, tag: "🔎 Rasa ingin tahu" },
-      { title: "Kunjungan Inspiratif", minutes: "~2 jam", body: "Rencanakan kunjungan ke pameran pendidikan, kampus, atau tempat kerja yang terkait minatnya.", tag: "🎓 Wawasan" },
-      { title: "Susun Roadmap Bersama", minutes: "~20 mnt", body: "Tawarkan diri menjadi teman diskusi saat ia menyusun roadmap — tanya, jangan mendikte.", tag: "🗺️ Masa depan" },
+      { title: "Eksplorasi Minat Bersama", minutes: "~45 mnt", body: `Cari info bareng ${n} tentang jurusan, kegiatan, atau profesi yang ia minati — biarkan ia memimpin.`, tag: "Rasa ingin tahu" },
+      { title: "Kunjungan Inspiratif", minutes: "~2 jam", body: "Rencanakan kunjungan ke pameran pendidikan, kampus, atau tempat kerja yang terkait minatnya.", tag: "Wawasan" },
+      { title: "Susun Roadmap Bersama", minutes: "~20 mnt", body: "Tawarkan diri menjadi teman diskusi saat ia menyusun roadmap — tanya, jangan mendikte.", tag: "Masa depan" },
     ],
   },
   semangat: {
     sibuk: (n) => [
-      { title: "Pesan Apresiasi", minutes: "~1 mnt", body: `Kirim pesan: “Ibu/Ayah bangga lihat usahamu minggu ini, ${n}!”`, tag: "🌟 Apresiasi" },
-      { title: "High-five Kecil", minutes: "~1 mnt", body: "Gestur sederhana saat bertemu bisa sangat berarti.", tag: "🙌 Kehangatan" },
-      { title: "Tanya Satu Hal Seru", minutes: "~3 mnt", body: "“Apa yang paling seru hari ini?” — dengarkan sampai selesai.", tag: "😊 Emosi positif" },
+      { title: "Pesan Apresiasi", minutes: "~1 mnt", body: `Kirim pesan: “Ibu/Ayah bangga lihat usahamu minggu ini, ${n}!”`, tag: "Apresiasi" },
+      { title: "High-five Kecil", minutes: "~1 mnt", body: "Gestur sederhana saat bertemu bisa sangat berarti.", tag: "Kehangatan" },
+      { title: "Tanya Satu Hal Seru", minutes: "~3 mnt", body: "“Apa yang paling seru hari ini?” — dengarkan sampai selesai.", tag: "Emosi positif" },
     ],
     sedikit: (n) => [
-      { title: "Rayakan Usaha", minutes: "~10 mnt", body: `Sebutkan secara spesifik usaha ${n} yang Anda perhatikan, bukan hanya hasilnya.`, tag: "🌟 Growth mindset" },
-      { title: "Tanya Sumber Semangat", minutes: "~5 mnt", body: "“Apa yang bikin kamu semangat minggu ini?” Jawabannya membantu Anda memahami motivasinya.", tag: "💡 Memahami" },
-      { title: "Tawarkan Tantangan Seru", minutes: "~5 mnt", body: "Tanyakan apakah ada hal baru yang ingin ia coba, dan bagaimana Anda bisa mendukung.", tag: "🚀 Eksplorasi" },
+      { title: "Rayakan Usaha", minutes: "~10 mnt", body: `Sebutkan secara spesifik usaha ${n} yang Anda perhatikan, bukan hanya hasilnya.`, tag: "Growth mindset" },
+      { title: "Tanya Sumber Semangat", minutes: "~5 mnt", body: "“Apa yang bikin kamu semangat minggu ini?” Jawabannya membantu Anda memahami motivasinya.", tag: "Memahami" },
+      { title: "Tawarkan Tantangan Seru", minutes: "~5 mnt", body: "Tanyakan apakah ada hal baru yang ingin ia coba, dan bagaimana Anda bisa mendukung.", tag: "Eksplorasi" },
     ],
     banyak: (n) => [
-      { title: "Perayaan Kecil", minutes: "~1 jam", body: `Ajak ${n} makan di tempat favoritnya sebagai apresiasi atas konsistensinya.`, tag: "🎉 Perayaan" },
-      { title: "Aktivitas Minat Bersama", minutes: "~1 jam", body: "Lakukan kegiatan sesuai minatnya bersama: olahraga, membuat proyek, atau belajar hal baru.", tag: "🎨 Kebersamaan" },
-      { title: "Bicara Mimpi Jangka Panjang", minutes: "~20 mnt", body: "Saat suasana hangat, tanyakan mimpinya 5 tahun ke depan — dengarkan dengan antusias.", tag: "🗺️ Masa depan" },
+      { title: "Perayaan Kecil", minutes: "~1 jam", body: `Ajak ${n} makan di tempat favoritnya sebagai apresiasi atas konsistensinya.`, tag: "Perayaan" },
+      { title: "Aktivitas Minat Bersama", minutes: "~1 jam", body: "Lakukan kegiatan sesuai minatnya bersama: olahraga, membuat proyek, atau belajar hal baru.", tag: "Kebersamaan" },
+      { title: "Bicara Mimpi Jangka Panjang", minutes: "~20 mnt", body: "Saat suasana hangat, tanyakan mimpinya 5 tahun ke depan — dengarkan dengan antusias.", tag: "Masa depan" },
     ],
   },
 };
@@ -319,10 +319,10 @@ const PLANS: Record<PlanGroup, Record<Capability, (n: string) => PlanStep[]>> = 
 export function childCompanion(params: { streak: number; checkinsThisWeek: number; goalsPercent: number; todayEnergy?: number }) {
   const { streak, checkinsThisWeek, goalsPercent, todayEnergy } = params;
   if (todayEnergy !== undefined && todayEnergy <= 2)
-    return "Energimu lagi rendah. Nggak apa-apa, istirahat juga bagian dari progres kok 🤍";
-  if (streak >= 7) return `Wah, ${streak} hari berturut-turut kamu check-in! Konsistensimu keren banget ✨`;
-  if (goalsPercent >= 70) return `Target minggu ini sudah ${goalsPercent}% tercapai. Pertahankan ritmemu ya! 🎯`;
-  if (checkinsThisWeek >= 3) return `Kamu sudah refleksi ${checkinsThisWeek} hari minggu ini. Langkah kecil yang konsisten itu kuat 💪`;
+    return "Energimu lagi rendah. Nggak apa-apa, istirahat juga bagian dari progres kok.";
+  if (streak >= 7) return `Wah, ${streak} hari berturut-turut kamu check-in! Konsistensimu keren banget.`;
+  if (goalsPercent >= 70) return `Target minggu ini sudah ${goalsPercent}% tercapai. Pertahankan ritmemu ya!`;
+  if (checkinsThisWeek >= 3) return `Kamu sudah refleksi ${checkinsThisWeek} hari minggu ini. Langkah kecil yang konsisten itu kuat.`;
   if (goalsPercent > 0) return "Target sedang berjalan. Pilih satu yang paling ringan buat hari ini, yuk!";
-  return "Yuk mulai dengan check-in singkat. Kurang dari satu menit kok ⏱️";
+  return "Yuk mulai dengan check-in singkat. Kurang dari satu menit kok.";
 }

@@ -16,7 +16,7 @@ export default async function ParentProfile({ searchParams }: { searchParams: Pr
       isNew={isNew}
       settings={
         <div className="rounded-2xl bg-teal-50 p-4 text-sm">
-          <p className="font-bold text-teal">⏱️ Kapasitas Waktu (Capability Filter)</p>
+          <p className="font-bold text-teal">Kapasitas Waktu (Capability Filter)</p>
           <p className="mt-1 text-xs text-muted">Saat ini: <b>{cap?.label}</b>. Ubah kapan saja di Beranda — saran parenting akan menyesuaikan.</p>
         </div>
       }
