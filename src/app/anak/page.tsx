@@ -1,12 +1,13 @@
 import Link from "next/link";
-import { ArrowRight, CheckCircle2, Circle, EyeOff, Lock, MessagesSquare, Quote, RefreshCw, ShieldCheck, Sparkles } from "lucide-react";
+import { ArrowRight, CheckCircle2, Circle, EyeOff, Flame, Lock, MessagesSquare, NotebookPen, Quote, RefreshCw, ShieldCheck, Sparkles, Target } from "lucide-react";
 import { requireRole } from "@/lib/auth";
-import { getActiveTalk, getCheckins, getStreak, getTodayCheckin, getWeekGoals, goalsPercent } from "@/lib/data";
-import { QUOTES, goalCategory } from "@/lib/constants";
+import { getActiveTalk, getCheckins, getStreak, getTodayCheckin, getWeekGoals, goalsPercent, talkTopics } from "@/lib/data";
+import { QUOTES } from "@/lib/constants";
 import { greeting, today, weekStart } from "@/lib/dates";
 import { childCompanion } from "@/lib/insight";
 import { ProgressBar } from "@/components/Charts";
 import QuickCheckin from "./QuickCheckin";
+import { CATEGORY_VISUAL, VisualIcon } from "@/components/icons";
 import PartnerLogos from "@/components/PartnerLogos";
 
 export const metadata = { title: "Beranda" };
@@ -27,9 +28,9 @@ export default async function ChildHome() {
       {/* Hero */}
       <section className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-coral-100 via-coral-50 to-teal-50 p-6 sm:p-8">
         <div className="absolute -top-10 right-10 size-48 rounded-full bg-white/50 blur-2xl" />
-        {streak > 0 && <span className="chip bg-white text-coral-700">🔥 Streak {streak} Hari Berturut-turut!</span>}
+        {streak > 0 && <span className="chip bg-white text-coral-700"><Flame size={13} /> Streak {streak} hari berturut-turut</span>}
         <h1 className="mt-3 text-3xl font-extrabold tracking-tight sm:text-4xl">
-          {greeting()}, {me.name} 👋
+          {greeting()}, {me.name}
         </h1>
         <p className="mt-2 max-w-lg text-ink/70">Siap melangkah lebih dekat ke impianmu hari ini?</p>
         <p className="mt-4 flex max-w-xl items-start gap-2 rounded-2xl bg-white/70 p-3 text-sm backdrop-blur">
@@ -45,7 +46,7 @@ export default async function ChildHome() {
             <div className="mb-4 flex items-start justify-between">
               <div>
                 <h2 className="flex items-center gap-2 text-xl font-bold">
-                  Check-In Harian ✨ <span className="chip bg-coral-100 text-coral-700">Hari Ini</span>
+                  Check-In Harian <span className="chip bg-coral-100 text-coral-700">Hari Ini</span>
                 </h2>
                 <p className="text-sm text-muted">Bagaimana tingkat energimu hari ini?</p>
               </div>
@@ -74,7 +75,7 @@ export default async function ChildHome() {
             </p>
             <div className="relative mt-5 flex flex-wrap items-center justify-between gap-3">
               <Link href="/anak/checkin#jurnal" className="btn bg-violet text-white hover:brightness-110">
-                Buka Jurnal Rahasia ✍️ <ArrowRight size={16} />
+                <NotebookPen size={16} /> Buka Jurnal Rahasia <ArrowRight size={16} />
               </Link>
               <span className="flex items-center gap-1.5 text-xs text-violet/80"><EyeOff size={14} /> Hanya kamu yang bisa baca</span>
             </div>
@@ -85,7 +86,7 @@ export default async function ChildHome() {
           {/* Target minggu ini */}
           <section className="card">
             <div className="mb-4 flex items-center justify-between">
-              <h2 className="text-xl font-bold">Target Minggu Ini 🎯</h2>
+              <h2 className="flex items-center gap-2 text-xl font-bold"><Target size={20} className="text-coral-700" /> Target Minggu Ini</h2>
               <Link href="/anak/checkin" className="text-xs font-semibold text-coral-700">Atur</Link>
             </div>
             {goals.length === 0 ? (
@@ -100,7 +101,7 @@ export default async function ChildHome() {
                     <span className="text-4xl font-extrabold text-coral-700">{pct}%</span>
                     <span className="text-sm font-bold text-coral-700">{done}/{goals.length} Selesai</span>
                   </div>
-                  <p className="mt-1 text-sm font-medium">{pct >= 60 ? "Kamu hebat! Pertahankan 💪" : "Pelan-pelan, yang penting jalan 🌱"}</p>
+                  <p className="mt-1 text-sm font-medium">{pct >= 60 ? "Kamu hebat, pertahankan ritmenya." : "Pelan-pelan, yang penting jalan."}</p>
                   <ProgressBar percent={pct} className="mt-3" />
                 </div>
                 <ul className="mt-3 space-y-2">
@@ -110,7 +111,7 @@ export default async function ChildHome() {
                       <li key={g.id} className="flex items-center gap-3 rounded-2xl bg-sky/60 px-3 py-2.5">
                         {ok ? <CheckCircle2 size={20} className="shrink-0 text-teal" /> : <Circle size={20} className="shrink-0 text-line" />}
                         <span className={`flex-1 text-sm ${ok ? "text-muted line-through" : "font-medium"}`}>
-                          {goalCategory(g.category).emoji} {g.title}
+                          <VisualIcon v={CATEGORY_VISUAL[g.category]} size={15} className="mr-1.5 inline -mt-0.5" />{g.title}
                         </span>
                         <span className={`chip ${ok ? "bg-teal-100 text-teal" : "bg-white text-muted"}`}>{g.progress}/{g.target}</span>
                       </li>
@@ -127,7 +128,11 @@ export default async function ChildHome() {
               <span className="grid size-11 shrink-0 place-items-center rounded-full bg-teal-100 text-teal"><MessagesSquare size={18} /></span>
               <span className="flex-1 text-sm">
                 <b className="block">Ruang Bicara</b>
-                {talk.status === "disepakati" ? "Orang tuamu juga siap berdiskusi! 🎉" : talk.status === "ditunda" ? talk.parent_response : "Menunggu orang tuamu membalas…"}
+                {talk.status === "disepakati"
+                  ? "Kalian sepakat untuk ngobrol. Semoga lancar!"
+                  : talk.initiator === "parent"
+                    ? talk.status === "menunggu" ? `Orang tuamu mengajak ngobrol: ${talkTopics(talk).join(", ")}` : `Balasanmu: “${talk.response}”`
+                    : talk.response ?? "Menunggu orang tuamu membalas…"}
               </span>
               <ArrowRight size={18} className="text-muted" />
             </Link>

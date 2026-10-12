@@ -47,7 +47,7 @@ export default function Onboarding() {
                   Satu aplikasi, dua sudut pandang. Membantu remaja merancang masa depan dan orang tua mendampingi dengan tenang.
                 </p>
               </div>
-              <div className="hidden size-40 shrink-0 place-items-center rounded-3xl bg-white text-7xl shadow-md sm:grid">🧭</div>
+              <div className="hidden size-40 shrink-0 place-items-center rounded-3xl bg-white text-coral shadow-md sm:grid"><Compass size={80} strokeWidth={1.5} /></div>
             </div>
 
             <p className="text-center text-sm font-semibold text-muted">Kamu menggunakan aplikasi ini sebagai…</p>
@@ -56,10 +56,10 @@ export default function Onboarding() {
                 [
                   { r: "child", icon: Compass, title: "Saya Remaja", tag: "OTONOM", sub: "Ruang Eksplorasi Pribadi",
                     body: "Catat targetmu, rencanakan cita-cita, dan kelola perasaanmu di ruang privat yang aman.",
-                    chips: ["🔒 100% Privat", "✨ Smart Journal"] },
+                    chips: ["100% Privat", "Smart Journal"] },
                   { r: "parent", icon: Home, title: "Saya Orang Tua", tag: "REFLEKSI", sub: "Panduan Pengasuhan Suportif",
                     body: "Pahami perkembangan anak tanpa kepo berlebihan dan dapatkan panduan pendampingan bermakna.",
-                    chips: ["📈 Wawasan Empati", "🛡️ Menghormati Batasan"] },
+                    chips: ["Wawasan Empati", "Menghormati Batasan"] },
                 ] as const
               ).map((o) => {
                 const active = role === o.r;
@@ -132,7 +132,7 @@ export default function Onboarding() {
                 </div>
               ))}
             </div>
-            <Nav onBack={() => setStep(1)} onNext={next} label="Paham, Sangat Keren! ✨" />
+            <Nav onBack={() => setStep(1)} onNext={next} label="Paham, lanjut" />
           </div>
         )}
 
@@ -140,7 +140,7 @@ export default function Onboarding() {
           <div className="card animate-pop space-y-6 sm:p-10">
             <Steps step={2} role={role} />
             <div className="text-center">
-              <span className="chip bg-teal-50 text-teal">🌱 Pendampingan Penuh Empati</span>
+              <span className="chip bg-teal-50 text-teal">Pendampingan Penuh Empati</span>
               <h2 className="mt-3 text-3xl font-extrabold tracking-tight">Memahami, bukan mengawasi</h2>
               <p className="mt-2 text-muted">Membangun koneksi hangat tanpa menembus batas privasi anak remaja Anda.</p>
             </div>
@@ -165,7 +165,7 @@ export default function Onboarding() {
                   “Alex sedang fokus pada target akademik minggu ini, namun energinya sedikit terkuras. Waktu yang baik untuk menyeduh teh hangat bersama tanpa membahas nilai ujian.”
                 </p>
                 <div className="mt-4 flex flex-wrap gap-2">
-                  <span className="chip bg-teal-100 text-teal">🌱 Saran Pendekatan Halus</span>
+                  <span className="chip bg-teal-100 text-teal">Saran Pendekatan Halus</span>
                   <span className="chip bg-white text-ink/70">Sentuhan Nyaman</span>
                 </div>
               </div>
@@ -182,7 +182,7 @@ export default function Onboarding() {
                 </div>
               ))}
             </div>
-            <Nav onBack={() => setStep(1)} onNext={next} label="Mulai Dampingi Anak 💛" />
+            <Nav onBack={() => setStep(1)} onNext={next} label="Mulai Dampingi Anak" />
           </div>
         )}
       </div>

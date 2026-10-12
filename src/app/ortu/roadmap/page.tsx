@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Lock, MessageSquare, Trophy } from "lucide-react";
+import { CalendarRange, Lock, MessageSquare, Trophy } from "lucide-react";
 import { requireRole } from "@/lib/auth";
 import { getChildForParent, getMilestones, milestoneStats } from "@/lib/data";
 import { ProgressRing } from "@/components/Charts";
@@ -17,7 +17,7 @@ export default async function ParentRoadmap({ searchParams }: { searchParams: Pr
   return (
     <div className="space-y-6">
       <header>
-        <span className="chip bg-teal-100 text-teal">🗺️ Peta Perjalanan</span>
+        <span className="chip bg-teal-100 text-teal">Peta Perjalanan</span>
         <h1 className="mt-3 text-3xl font-extrabold tracking-tight">Roadmap {child.name}</h1>
         <p className="mt-1 max-w-2xl text-muted">Anda melihat progres umum dan milestone yang {child.name} pilih untuk dibagikan sebagai <b>Agenda Bersama</b>.</p>
       </header>
@@ -35,14 +35,14 @@ export default async function ParentRoadmap({ searchParams }: { searchParams: Pr
           <p className="text-sm"><b>{stats.done} dari {stats.total}</b> milestone tercapai</p>
           <div className="mt-4 grid grid-cols-2 gap-2">
             <div className="rounded-2xl bg-sky p-3"><b className="text-xl text-teal">{stats.xp}</b><br /><span className="text-xs text-muted">Total XP</span></div>
-            <div className="rounded-2xl bg-violet-50 p-3"><b className="text-xl text-violet">{privateCount}</b><br /><span className="text-xs text-muted">Pribadi 🔒</span></div>
+            <div className="rounded-2xl bg-violet-50 p-3"><b className="text-xl text-violet">{privateCount}</b><br /><span className="text-xs text-muted">Pribadi</span></div>
           </div>
-          <p className="mt-4 rounded-2xl bg-teal-50 p-3 text-left text-xs text-teal">💡 Apresiasi usahanya menapaki setiap langkah, bukan hanya pencapaian akhirnya.</p>
+          <p className="mt-4 rounded-2xl bg-teal-50 p-3 text-left text-xs text-teal">Apresiasi usahanya menapaki setiap langkah, bukan hanya pencapaian akhirnya.</p>
         </aside>
         <div className="space-y-4">
           {shared.length === 0 ? (
             <div className="card text-center text-muted">
-              <p className="text-4xl">🔒</p>
+              <span className="mx-auto grid size-14 place-items-center rounded-2xl bg-violet-50 text-violet"><Lock size={26} /></span>
               <p className="mt-2 font-semibold text-ink">Belum ada Agenda Bersama</p>
               <p className="text-sm">{child.name} belum membagikan milestone. Ini wajar — rencana pribadi butuh ruang untuk tumbuh.</p>
             </div>
@@ -51,13 +51,19 @@ export default async function ParentRoadmap({ searchParams }: { searchParams: Pr
               <div key={m.id} className="card">
                 <div className="flex flex-wrap gap-1.5">
                   <span className={`chip ${m.status === "selesai" ? "bg-teal-50 text-teal" : m.status === "berjalan" ? "bg-coral-100 text-coral-700" : "bg-sky text-muted"}`}>
-                    {m.status === "selesai" ? "Selesai 🎉" : m.status === "berjalan" ? "Sedang Berjalan 📍" : "Rencana 🗓️"}
+                    {m.status === "selesai" ? "Selesai" : m.status === "berjalan" ? "Sedang Berjalan" : "Rencana"}
                   </span>
-                  <span className="chip bg-teal-100 text-teal">🔗 Agenda Bersama</span>
-                  {m.target_date && <span className="chip bg-white text-muted ring-1 ring-line">⏳ {m.target_date}</span>}
+                  <span className="chip bg-teal-100 text-teal">Agenda Bersama</span>
+                  {(m.period || m.target_date) && <span className="chip bg-white text-muted ring-1 ring-line"><CalendarRange size={11} /> {m.period || m.target_date}</span>}
                 </div>
                 <p className="mt-3 text-lg font-bold">{m.horizon === "jangka_panjang" && <Trophy size={18} className="mr-1 inline text-amber" />}{m.title}</p>
+                {m.dream && <p className="mt-1 text-xs font-semibold text-teal">Bagian dari impian: {m.dream}</p>}
                 {m.description && <p className="mt-1 text-sm text-muted">{m.description}</p>}
+                {m.tasks && (() => {
+                  let ts: { done: boolean }[] = [];
+                  try { ts = JSON.parse(m.tasks); } catch {}
+                  return ts.length ? <p className="mt-2 text-xs font-semibold text-muted">{ts.filter((t) => t.done).length} dari {ts.length} langkah kecil selesai</p> : null;
+                })()}
                 {m.status !== "selesai" && (
                   <p className="mt-3 flex items-start gap-2 rounded-2xl bg-sky p-3 text-sm"><MessageSquare size={16} className="mt-0.5 shrink-0 text-teal" /> Topik obrolan: “Ibu/Ayah lihat kamu punya rencana <b>{m.title}</b>. Ada yang bisa kami bantu siapkan?”</p>
                 )}

@@ -1,8 +1,9 @@
 "use client";
 
-import { useActionState, useEffect, useState, useTransition } from "react";
-import { CheckCircle2, Link2, MoreHorizontal, PlayCircle, PlusCircle, Trash2, Undo2, X } from "lucide-react";
+import { useActionState, useEffect, useOptimistic, useState, useTransition } from "react";
+import { Check, CheckCircle2, Link2, MoreHorizontal, PlayCircle, PlusCircle, Trash2, Undo2, X } from "lucide-react";
 import { addMilestone, deleteMilestone, setMilestoneStatus, toggleMilestoneShared } from "@/actions/child";
+import { toggleTask } from "@/actions/planner";
 import type { Milestone } from "@/lib/db";
 
 export function MilestoneMenu({ m }: { m: Milestone }) {
@@ -61,11 +62,11 @@ export function AddMilestoneButton({ horizon }: { horizon: string }) {
         <div className="fixed inset-0 z-50 grid place-items-end bg-ink/30 backdrop-blur-sm sm:place-items-center" onClick={() => setOpen(false)}>
           <form action={action} onClick={(e) => e.stopPropagation()} className="animate-pop w-full max-w-md space-y-4 rounded-t-3xl bg-white p-6 sm:rounded-3xl">
             <div className="flex items-center justify-between">
-              <h3 className="text-lg font-bold">Milestone Baru 🗺️</h3>
+              <h3 className="text-lg font-bold">Milestone Baru</h3>
               <button type="button" onClick={() => setOpen(false)} aria-label="Tutup"><X size={20} /></button>
             </div>
             <div className="grid grid-cols-2 gap-2">
-              {[["tahun_ini", "📅 Tahun Ini"], ["jangka_panjang", "🚩 Jangka Panjang"]].map(([v, l]) => (
+              {[["tahun_ini", "Tahun Ini"], ["jangka_panjang", "Jangka Panjang"]].map(([v, l]) => (
                 <label key={v}>
                   <input type="radio" name="horizon" value={v} defaultChecked={v === horizon} className="peer sr-only" />
                   <span className="block cursor-pointer rounded-2xl border border-line py-2.5 text-center text-sm font-semibold peer-checked:border-coral peer-checked:bg-coral-50 peer-checked:text-coral-700">{l}</span>
@@ -94,5 +95,41 @@ export function AddMilestoneButton({ horizon }: { horizon: string }) {
         </div>
       )}
     </>
+  );
+}
+
+/** Checklist langkah kecil di dalam milestone (dari Rancang dengan AI). */
+export function TaskList({ id, tasks }: { id: number; tasks: string }) {
+  let parsed: { t: string; done: boolean }[] = [];
+  try {
+    parsed = JSON.parse(tasks);
+  } catch {}
+  const [list, flip] = useOptimistic(parsed, (xs, i: number) => xs.map((x, j) => (j === i ? { ...x, done: !x.done } : x)));
+  const [, start] = useTransition();
+  if (!list.length) return null;
+  const done = list.filter((x) => x.done).length;
+  return (
+    <div className="mt-3 rounded-2xl bg-sky/70 p-3">
+      <p className="mb-2 flex items-center justify-between text-xs font-semibold text-muted">
+        <span>Langkah kecil</span>
+        <span>{done}/{list.length}</span>
+      </p>
+      <ul className="space-y-1">
+        {list.map((x, i) => (
+          <li key={i}>
+            <button
+              type="button"
+              onClick={() => start(async () => { flip(i); await toggleTask(id, i); })}
+              className="flex w-full items-start gap-2.5 rounded-xl px-1.5 py-1 text-left text-sm hover:bg-white"
+            >
+              <span className={`mt-0.5 grid size-[18px] shrink-0 place-items-center rounded-md border-2 ${x.done ? "border-teal bg-teal text-white" : "border-muted/40 bg-white"}`}>
+                {x.done && <Check size={12} strokeWidth={3} />}
+              </span>
+              <span className={x.done ? "text-muted line-through" : ""}>{x.t}</span>
+            </button>
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 }

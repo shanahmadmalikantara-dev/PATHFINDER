@@ -1,10 +1,10 @@
 import Link from "next/link";
 import { Suspense } from "react";
 import {
-  ArrowRight, BookOpen, CheckCircle2, Clock, Eye, HeartHandshake, Lightbulb, Lock, MessageSquare, Quote, ShieldAlert, Sparkles, XCircle,
+  ArrowRight, BookOpen, Link2, CheckCircle2, Clock, Eye, HeartHandshake, Lightbulb, Lock, MessageSquare, Quote, ShieldAlert, Sparkles, XCircle,
 } from "lucide-react";
 import { requireRole } from "@/lib/auth";
-import { getActiveTalk, getCheckins, getChildForParent, getFamily, getWeekGoals, goalsPercent } from "@/lib/data";
+import { getActiveTalk, getCheckins, getChildForParent, getFamily, getWeekGoals, goalsPercent, talkTopics } from "@/lib/data";
 import { greeting, shortDate, today } from "@/lib/dates";
 import { analyze, type ParentInsight } from "@/lib/insight";
 import { geminiEnabled, personalizeGuide } from "@/lib/gemini";
@@ -24,7 +24,7 @@ export default async function ParentHome({ searchParams }: { searchParams: Promi
     const fam = getFamily(me.family_id);
     return (
       <div className="mx-auto max-w-xl space-y-5 py-6 text-center">
-        <p className="text-5xl">🔗</p>
+        <span className="mx-auto grid size-16 place-items-center rounded-3xl bg-teal-50 text-teal"><Link2 size={30} /></span>
         <h1 className="text-2xl font-extrabold">Hubungkan dengan anak Anda</h1>
         <p className="text-muted">Minta anak Anda mendaftar di HP-nya dan memasukkan kode keluarga berikut. Setelah terhubung, wawasan perkembangan akan muncul di sini.</p>
         {fam && <div className="card inline-block text-left"><CopyCode code={fam.code} /></div>}
@@ -43,7 +43,7 @@ export default async function ParentHome({ searchParams }: { searchParams: Promi
     <div className="space-y-6">
       <header className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-extrabold tracking-tight">{greeting()}, {me.name} 🌸</h1>
+          <h1 className="text-3xl font-extrabold tracking-tight">{greeting()}, {me.name}</h1>
           <p className="mt-1 max-w-xl text-muted">Berikut wawasan perkembangan {child.name} yang dirangkum dengan penuh rasa hormat dan empati.</p>
         </div>
         <div className="flex flex-col gap-2">
@@ -62,11 +62,11 @@ export default async function ParentHome({ searchParams }: { searchParams: Promi
 
       {/* Kartu anak */}
       <section className="card flex flex-wrap items-center gap-4">
-        <span className="relative grid size-14 place-items-center rounded-full bg-teal-300/50 text-2xl">
-          😊<span className="absolute right-0 bottom-0 size-3.5 rounded-full border-2 border-white bg-teal" />
+        <span className="relative grid size-14 place-items-center rounded-full bg-teal-300/50 text-xl font-extrabold text-teal-700">
+          {child.name.charAt(0).toUpperCase()}<span className="absolute right-0 bottom-0 size-3.5 rounded-full border-2 border-white bg-teal" />
         </span>
         <div className="min-w-0 flex-1">
-          <p className="text-xl font-bold">{child.name} ✏️</p>
+          <p className="text-xl font-bold">{child.name}</p>
           <p className="flex flex-wrap items-center gap-2 text-sm text-muted">
             {child.grade ?? "Remaja"}
             {last ? (
@@ -82,11 +82,18 @@ export default async function ParentHome({ searchParams }: { searchParams: Promi
         </div>
       </section>
 
-      {/* Sinyal diskusi */}
-      {talk?.status === "menunggu" && (
+      {/* Sinyal diskusi (dua arah) */}
+      {talk && (talk.initiator === "child" ? talk.status !== "disepakati" : talk.status !== "menunggu") && (
         <Link href="/ortu/bicara" className="flex items-center gap-4 rounded-3xl bg-gradient-to-r from-teal to-teal-700 p-5 text-white shadow-lg">
-          <span className="grid size-12 shrink-0 place-items-center rounded-full bg-white/20 text-2xl">🎉</span>
-          <span className="flex-1"><b className="block text-lg">{child.name} siap berdiskusi!</b><span className="text-sm text-white/80">Topik: {(JSON.parse(talk.topics) as string[]).join(", ")} • {talk.preferred_time}</span></span>
+          <span className="grid size-12 shrink-0 place-items-center rounded-full bg-white/20"><MessageSquare size={22} /></span>
+          <span className="flex-1">
+            <b className="block text-lg">
+              {talk.initiator === "child"
+                ? `${child.name} mengajak Anda ngobrol`
+                : talk.status === "disepakati" ? `${child.name} siap ngobrol dengan Anda` : `${child.name} membalas ajakan Anda`}
+            </b>
+            <span className="text-sm text-white/80">Topik: {talkTopics(talk).join(", ")} · {talk.preferred_time}</span>
+          </span>
           <ArrowRight />
         </Link>
       )}
@@ -182,7 +189,7 @@ export default async function ParentHome({ searchParams }: { searchParams: Promi
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
             <span className="chip bg-teal-50 text-teal"><Clock size={12} /> KONEKSI BERKESADARAN</span>
-            <h2 className="mt-2 text-2xl font-bold">Kapasitas Waktu Anda Hari Ini ⏱️</h2>
+            <h2 className="mt-2 text-2xl font-bold">Kapasitas Waktu Anda Hari Ini</h2>
             <p className="text-sm text-muted">Setiap orang tua memiliki hari yang berbeda. Sesuaikan bentuk dukungan Anda dengan waktu yang tersedia.</p>
           </div>
         </div>
@@ -236,7 +243,7 @@ function GuideBox({ text, ai, loading }: { text: string; ai: boolean; loading?: 
   return (
     <div className="mt-5 rounded-2xl bg-white/10 p-5">
       <p className="text-[17px] leading-relaxed italic">“{text}”</p>
-      {(ai || loading) && <p className="mt-3 text-xs font-semibold text-teal-300">{loading ? "✨ Gemini sedang mempersonalisasi…" : "✨ Dipersonalisasi oleh Gemini AI"}</p>}
+      {(ai || loading) && <p className="mt-3 text-xs font-semibold text-teal-300">{loading ? "Gemini sedang mempersonalisasi…" : "Dipersonalisasi oleh Gemini AI"}</p>}
     </div>
   );
 }

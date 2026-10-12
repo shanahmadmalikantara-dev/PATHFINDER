@@ -1,8 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Fingerprint, KeyRound, Lock, LockOpen, MinusCircle, ShieldCheck, Trash2, X } from "lucide-react";
-import { MOODS, moodInfo } from "@/lib/constants";
+import { Feather, Fingerprint, KeyRound, Lock, LockOpen, MinusCircle, NotebookPen, ShieldCheck, Trash2, X } from "lucide-react";
+import { moodInfo } from "@/lib/constants";
+import { MoodPicker } from "@/components/CheckinPickers";
+import { MOOD_VISUAL, VisualIcon } from "@/components/icons";
 import {
   createVault, cryptoSupported, destroyVault, hasVault, saveVault, unlockVault,
   type JournalEntry, type OpenVault,
@@ -74,7 +76,7 @@ export default function Journal({ userId }: { userId: number }) {
     await saveVault(userId, vault, entries);
     setVault({ ...vault, entries });
     setText(""); setTags([]); setMood(null);
-    setSaved("Tersimpan & terkunci 🔒"); setBusy(false);
+    setSaved("Tersimpan & terkunci"); setBusy(false);
     setTimeout(() => setSaved(""), 2500);
   };
   const remove = async (id: string) => {
@@ -135,14 +137,7 @@ export default function Journal({ userId }: { userId: number }) {
     <div className="grid gap-5 lg:grid-cols-[1.5fr_1fr]">
       <div className="card space-y-4">
         <p className="text-sm font-bold">Bagaimana rasa harimu sekarang?</p>
-        <div className="flex flex-wrap gap-2">
-          {MOODS.map((m) => (
-            <button key={m.value} onClick={() => setMood(mood === m.value ? null : m.value)}
-              className={`chip px-4 py-2 text-sm ${mood === m.value ? "bg-coral text-white shadow" : "bg-sky text-ink/80"}`}>
-              {m.emoji} {m.label}
-            </button>
-          ))}
-        </div>
+        <MoodPicker value={mood} onPick={setMood} />
         <div className="rounded-2xl border border-line bg-coral-50/30 p-4 focus-within:border-violet">
           <textarea
             value={text} onChange={(e) => setText(e.target.value)} rows={6} maxLength={3000}
@@ -185,7 +180,7 @@ export default function Journal({ userId }: { userId: number }) {
 
       <div className="space-y-4">
         <div className="card">
-          <p className="flex items-center gap-2 text-sm font-bold text-coral-700">🧘 PELEPASAN BEBAN</p>
+          <p className="eyebrow flex items-center gap-2 text-coral-700"><Feather size={14} /> Pelepasan beban</p>
           <p className="mt-2 text-lg font-semibold italic">“Menuliskan hambatanmu adalah langkah pertama mengubah kekhawatiran menjadi rencana yang jernih.”</p>
         </div>
         <div className="card">
@@ -204,7 +199,7 @@ export default function Journal({ userId }: { userId: number }) {
                   <li key={e.id} className="rounded-2xl bg-sky p-3">
                     <button onClick={() => setOpenId(open ? null : e.id)} className="w-full text-left">
                       <div className="flex justify-between text-xs">
-                        <b>{mi ? `${mi.emoji} Mood: ${mi.label}` : "📝 Catatan"}</b>
+                        <b className="flex items-center gap-1.5">{mi ? <><VisualIcon v={MOOD_VISUAL[mi.value]} size={14} /> {mi.label}</> : <><NotebookPen size={14} /> Catatan</>}</b>
                         <span className="text-muted">{ago(e.createdAt)}</span>
                       </div>
                       <p className={`mt-1 text-sm text-ink/80 italic ${open ? "whitespace-pre-wrap" : "line-clamp-1"}`}>“{e.text}”</p>
@@ -215,7 +210,7 @@ export default function Journal({ userId }: { userId: number }) {
                         <button onClick={() => remove(e.id)} className="text-coral-700" aria-label="hapus"><Trash2 size={15} /></button>
                       </div>
                     )}
-                    {!open && <p className="mt-1 text-[11px] font-semibold text-violet">🔒 Disembunyikan dari Mode Orang Tua</p>}
+                    {!open && <p className="mt-1 flex items-center gap-1 text-[11px] font-semibold text-violet"><Lock size={11} /> Disembunyikan dari Mode Orang Tua</p>}
                   </li>
                 );
               })}

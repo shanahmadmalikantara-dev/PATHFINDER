@@ -20,7 +20,7 @@ export default function InstallButton() {
     return () => window.removeEventListener("beforeinstallprompt", h);
   }, []);
 
-  if (installed) return <p className="flex items-center gap-2 text-sm text-teal"><Smartphone size={16} /> Aplikasi sudah terpasang di perangkat ini ✓</p>;
+  if (installed) return <p className="flex items-center gap-2 text-sm text-teal"><Smartphone size={16} /> Aplikasi sudah terpasang di perangkat ini</p>;
   if (evt)
     return (
       <button onClick={async () => { await evt.prompt(); setEvt(null); }} className="btn-primary w-full">
@@ -30,8 +30,8 @@ export default function InstallButton() {
   return (
     <p className="text-xs text-muted">
       {ios
-        ? "📱 iPhone: ketuk tombol Bagikan (kotak dengan panah) di Safari → “Tambah ke Layar Utama”."
-        : "📱 Untuk memasang aplikasi: buka menu browser (⋮) → “Instal aplikasi” / “Tambahkan ke layar utama”."}
+        ? "iPhone: ketuk tombol Bagikan (kotak dengan panah) di Safari → “Tambah ke Layar Utama”."
+        : "Untuk memasang aplikasi: buka menu browser (⋮) → “Instal aplikasi” / “Tambahkan ke layar utama”."}
     </p>
   );
 }

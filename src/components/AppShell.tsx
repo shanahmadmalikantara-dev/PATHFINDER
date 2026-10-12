@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { Bell, Home, Lock, MessagesSquare, Route, Smile, User, Settings, ShieldCheck, X } from "lucide-react";
+import { AlarmClock, Bell, Home, Link2, Lock, MessagesSquare, Route, Settings, ShieldCheck, Smile, Sparkles, User, X } from "lucide-react";
 import { Logo, LogoMark } from "./Logo";
 
 type Role = "child" | "parent";
@@ -29,7 +29,11 @@ export interface Notice {
   href: string;
   /** true = kabar penting yang memunculkan pop-up + getar saat baru datang */
   alert?: boolean;
+  /** jenis kabar, menentukan ikonnya */
+  kind?: "talk" | "reminder" | "family" | "insight";
 }
+
+const NOTICE_ICON = { talk: MessagesSquare, reminder: AlarmClock, family: Link2, insight: Sparkles } as const;
 
 export default function AppShell({
   role,
@@ -147,7 +151,7 @@ export default function AppShell({
                   </button>
                 </div>
                 {notices.length === 0 ? (
-                  <p className="px-3 pb-3 text-sm text-muted">Belum ada kabar baru. Semua tenang 🌿</p>
+                  <p className="px-3 pb-3 text-sm text-muted">Belum ada kabar baru.</p>
                 ) : (
                   notices.map((n, i) => (
                     <Link
@@ -156,7 +160,10 @@ export default function AppShell({
                       onClick={() => setOpen(false)}
                       className="block rounded-xl px-3 py-2.5 text-sm hover:bg-sky"
                     >
-                      {n.text}
+                      <span className="flex items-start gap-2.5">
+                        <NoticeIcon kind={n.kind} />
+                        <span>{n.text}</span>
+                      </span>
                     </Link>
                   ))
                 )}
@@ -228,5 +235,14 @@ export function PrivacyNote({ children }: { children: React.ReactNode }) {
     <p className="flex items-start gap-2 text-xs text-violet">
       <ShieldCheck size={14} className="mt-0.5 shrink-0" /> <span>{children}</span>
     </p>
+  );
+}
+
+function NoticeIcon({ kind }: { kind?: Notice["kind"] }) {
+  const Icon = NOTICE_ICON[kind ?? "insight"];
+  return (
+    <span className="mt-0.5 grid size-7 shrink-0 place-items-center rounded-full bg-primary-faint text-primary-strong">
+      <Icon size={14} />
+    </span>
   );
 }

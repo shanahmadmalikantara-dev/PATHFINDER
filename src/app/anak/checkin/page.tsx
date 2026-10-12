@@ -1,4 +1,4 @@
-import { Bot, Eye, Lock, ShieldCheck, Sprout } from "lucide-react";
+import { Bot, Eye, Flame, Lock, ShieldCheck, Sprout } from "lucide-react";
 import { requireRole } from "@/lib/auth";
 import { getCheckins, getStreak, getTodayCheckin, getWeekGoals, goalsPercent } from "@/lib/data";
 import { weekLabel, weekStart } from "@/lib/dates";
@@ -28,11 +28,11 @@ export default async function CheckinPage() {
             <span className="chip bg-violet-50 text-violet"><ShieldCheck size={12} /> Mode Anak Aktif</span>
           </div>
           <p className="eyebrow mt-3 text-muted">Refleksi & Manajemen Waktu</p>
-          <h1 className="mt-1 text-3xl font-extrabold tracking-tight sm:text-4xl">Check-In & Jurnal Pribadi 🎯</h1>
+          <h1 className="mt-1 text-3xl font-extrabold tracking-tight sm:text-4xl">Check-In & Jurnal Pribadi</h1>
           <p className="mt-2 max-w-xl text-muted">Langkah kecil yang konsisten akan membawamu ke tujuan besar, seimbang dengan ruang refleksi tanpa beban.</p>
         </div>
         <div className="flex items-center gap-3 rounded-full bg-white px-5 py-3 shadow-sm">
-          <span className="grid size-10 place-items-center rounded-full bg-coral-100 text-xl">🔥</span>
+          <span className="grid size-10 place-items-center rounded-full bg-coral-100 text-coral-700"><Flame size={20} /></span>
           <span className="text-sm leading-tight"><span className="eyebrow text-muted">Konsistensi</span><br /><b className="text-lg">Streak: {streak} Hari</b></span>
         </div>
       </header>
@@ -70,14 +70,14 @@ export default async function CheckinPage() {
           <div className="flex items-center gap-3">
             <span className="grid size-12 place-items-center rounded-2xl bg-violet-100 text-violet"><ShieldCheck size={22} /></span>
             <div>
-              <h2 className="text-2xl font-extrabold tracking-tight">Jurnal & Hambatan Pribadi 🔐</h2>
+              <h2 className="text-2xl font-extrabold tracking-tight">Jurnal & Hambatan Pribadi</h2>
               <p className="text-sm text-muted">Tuliskan unek-unekmu, rasa lelah, atau tantangan tanpa takut dinilai siapa pun.</p>
             </div>
           </div>
           <span className="chip bg-violet-50 text-violet">● Enkripsi Penuh • Hanya di HP-mu</span>
         </div>
         <p className="rounded-2xl bg-coral-50 p-4 text-sm text-coral-700">
-          🌿 <b>Ruang Aman Tanpa Beban</b> — Tulisanmu dienkripsi dan disimpan <b>hanya di perangkat ini</b>, tidak pernah dikirim ke server. Orang tua hanya melihat level energi dari check-in, tidak pernah isi tulisanmu.
+          <b>Ruang aman tanpa beban.</b> — Tulisanmu dienkripsi dan disimpan <b>hanya di perangkat ini</b>, tidak pernah dikirim ke server. Orang tua hanya melihat level energi dari check-in, tidak pernah isi tulisanmu.
         </p>
         <Journal userId={me.id} />
       </section>
