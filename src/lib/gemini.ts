@@ -101,6 +101,7 @@ export async function generate(opts: {
   const deadline = Date.now() + (opts.timeoutMs ?? 25000);
   for (const model of await candidates(key)) {
     let thinking = thinkingFor(model);
+    let maxTokens = opts.maxTokens ?? 1024;
     for (let attempt = 0; attempt < 2; attempt++) {
       const left = deadline - Date.now();
       if (left < 1500) return null;
@@ -114,7 +115,7 @@ export async function generate(opts: {
             contents: msgs.map((m) => ({ role: m.role, parts: [{ text: m.text }] })),
             generationConfig: {
               temperature: opts.temperature ?? 0.7,
-              maxOutputTokens: opts.maxTokens ?? 1024,
+              maxOutputTokens: maxTokens,
               ...(opts.json ? { responseMimeType: "application/json" } : {}),
               ...(thinking ? { thinkingConfig: thinking } : {}),
             },
@@ -133,8 +134,19 @@ export async function generate(opts: {
           break; // coba model berikutnya
         }
         const data = await res.json();
+        const finish: string | undefined = data?.candidates?.[0]?.finishReason;
         const parts: { text?: string; thought?: boolean }[] = data?.candidates?.[0]?.content?.parts ?? [];
         const text = parts.filter((p) => !p.thought).map((p) => p.text ?? "").join("").trim();
+        // Jawaban terpotong karena jatah token habis (model baru ikut memakai jatah ini untuk
+        // "berpikir"). Jangan pernah dipakai/disimpan: ulangi sekali dengan jatah 2x lipat.
+        if (finish === "MAX_TOKENS") {
+          console.error(`[gemini] ${model} -> terpotong (MAX_TOKENS, ${maxTokens} token)`);
+          if (attempt === 0) {
+            maxTokens *= 2;
+            continue;
+          }
+          break;
+        }
         if (!text) {
           console.error(`[gemini] ${model} -> jawaban kosong (${data?.candidates?.[0]?.finishReason ?? "?"})`);
           break;
@@ -180,7 +192,7 @@ export async function personalizeGuide(input: {
 }): Promise<string | null> {
   if (!geminiEnabled()) return null;
   const cacheKey =
-    "guide2:" +
+    "guide3:" + // versi 3: entri lama bisa berisi teks terpotong
     crypto.createHash("sha1").update(JSON.stringify([input.familyId, input.facts, input.parentRelation])).digest("hex");
   const cached = db.prepare("SELECT value FROM ai_cache WHERE key = ?").get(cacheKey) as { value: string } | undefined;
   if (cached) return cached.value;
@@ -202,13 +214,22 @@ Aturan:
         text: `Nama anak: ${input.childName}\nPengguna: ${input.parentRelation}\nRingkasan pola minggu ini (data agregat):\n${facts}\n\nDraf panduan berbasis aturan (boleh diperbaiki):\n${input.baseGuide}\n\nTulis panduannya sekarang.`,
       },
     ],
-    maxTokens: 400,
+    maxTokens: 1024,
     temperature: 0.6,
-    timeoutMs: 12000,
+    timeoutMs: 20000,
   });
-  const text = out?.text.replace(/^["“]|["”]$/g, "").trim();
+  const text = completeSentences(out?.text.replace(/^["“]|["”]$/g, "").trim() ?? "");
   if (text) db.prepare("INSERT OR REPLACE INTO ai_cache (key, value) VALUES (?, ?)").run(cacheKey, text);
   return text || null;
+}
+
+/** Buang potongan kalimat yang tidak selesai di akhir teks. Null bila tak ada kalimat utuh. */
+export function completeSentences(text: string): string | null {
+  const t = text.trim();
+  if (!t) return null;
+  if (/[.!?…]["”')]?$/.test(t)) return t;
+  const cut = t.match(/^[\s\S]*[.!?…]["”')]?(?=\s)/);
+  return cut ? cut[0].trim() : null;
 }
 
 // ------------------------------------------------------------------- Kopilot
