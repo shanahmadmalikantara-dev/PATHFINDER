@@ -115,6 +115,9 @@ CREATE INDEX IF NOT EXISTS idx_checkins_child_date ON checkins(child_id, date);
 CREATE INDEX IF NOT EXISTS idx_goals_child_week ON goals(child_id, week);
 CREATE INDEX IF NOT EXISTS idx_milestones_child ON milestones(child_id);
 CREATE INDEX IF NOT EXISTS idx_talks_family ON talks(family_id, status);
+CREATE INDEX IF NOT EXISTS idx_talks_child_status ON talks(child_id, status, updated_at);
+CREATE INDEX IF NOT EXISTS idx_users_family ON users(family_id, role);
+CREATE INDEX IF NOT EXISTS idx_milestones_child_pos ON milestones(child_id, position);
 ${pulseTriggers()}`;
 
 // Trigger yang menaikkan family_pulse.version setiap data bersama keluarga berubah.

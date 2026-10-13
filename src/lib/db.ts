@@ -13,6 +13,7 @@ function open() {
   fs.mkdirSync(path.dirname(file), { recursive: true });
   const db = new Database(file);
   db.pragma("journal_mode = WAL");
+  db.pragma("busy_timeout = 5000"); // tunggu maks 5 detik bila database sedang dikunci proses lain
   db.pragma("foreign_keys = ON");
   db.exec(SCHEMA);
   migrate(db);
