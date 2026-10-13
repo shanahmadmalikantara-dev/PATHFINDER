@@ -22,6 +22,18 @@ function open() {
 export const db = globalForDb.__pathfinderDb ?? open();
 if (process.env.NODE_ENV !== "production") globalForDb.__pathfinderDb = db;
 
+/** Versi data keluarga (untuk /api/pulse). 0 bila belum pernah berubah. */
+export function familyVersion(familyId: number): number {
+  const r = db.prepare("SELECT version FROM family_pulse WHERE family_id = ?").get(familyId) as { version: number } | undefined;
+  return r?.version ?? 0;
+}
+
+/** Naikkan versi data keluarga secara manual (untuk perubahan di luar tabel bertrigger). */
+export function bumpFamily(familyId: number) {
+  db.prepare("INSERT OR IGNORE INTO family_pulse (family_id) VALUES (?)").run(familyId);
+  db.prepare("UPDATE family_pulse SET version = version + 1, updated_at = datetime('now') WHERE family_id = ?").run(familyId);
+}
+
 // ---- Tipe data ----
 export type Role = "child" | "parent";
 export type Capability = "sibuk" | "sedikit" | "banyak";

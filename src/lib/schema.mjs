@@ -103,11 +103,51 @@ CREATE TABLE IF NOT EXISTS ai_cache (
   created_at  TEXT NOT NULL DEFAULT (datetime('now'))
 );
 
+-- Versi data per keluarga untuk /api/pulse (dinaikkan otomatis oleh trigger di bawah).
+-- HP cukup membaca satu angka ini; data lengkap baru diambil kalau angkanya berubah.
+CREATE TABLE IF NOT EXISTS family_pulse (
+  family_id   INTEGER PRIMARY KEY,
+  version     INTEGER NOT NULL DEFAULT 0,
+  updated_at  TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
 CREATE INDEX IF NOT EXISTS idx_checkins_child_date ON checkins(child_id, date);
 CREATE INDEX IF NOT EXISTS idx_goals_child_week ON goals(child_id, week);
 CREATE INDEX IF NOT EXISTS idx_milestones_child ON milestones(child_id);
 CREATE INDEX IF NOT EXISTS idx_talks_family ON talks(family_id, status);
-`;
+${pulseTriggers()}`;
+
+// Trigger yang menaikkan family_pulse.version setiap data bersama keluarga berubah.
+// Sengaja TIDAK memakai "INSERT OR IGNORE": di dalam trigger, aturan konflik milik
+// query luar (mis. upsert check-in "ON CONFLICT DO UPDATE") menggantikannya,
+// sehingga check-in kedua di hari yang sama bisa gagal. NOT EXISTS tidak pernah konflik.
+function pulseTriggers() {
+  const bumpByChild = (ref) => `
+    INSERT INTO family_pulse (family_id) SELECT family_id FROM users WHERE id = ${ref} AND family_id IS NOT NULL
+      AND NOT EXISTS (SELECT 1 FROM family_pulse WHERE family_id = (SELECT family_id FROM users WHERE id = ${ref}));
+    UPDATE family_pulse SET version = version + 1, updated_at = datetime('now')
+      WHERE family_id = (SELECT family_id FROM users WHERE id = ${ref});`;
+  const bumpByFamily = (ref) => `
+    INSERT INTO family_pulse (family_id) SELECT ${ref} WHERE ${ref} IS NOT NULL
+      AND NOT EXISTS (SELECT 1 FROM family_pulse WHERE family_id = ${ref});
+    UPDATE family_pulse SET version = version + 1, updated_at = datetime('now') WHERE family_id = ${ref};`;
+  const out = [];
+  for (const table of ["checkins", "goals", "milestones"]) {
+    out.push(`CREATE TRIGGER IF NOT EXISTS pulse_${table}_ins AFTER INSERT ON ${table} BEGIN ${bumpByChild("NEW.child_id")} END;`);
+    out.push(`CREATE TRIGGER IF NOT EXISTS pulse_${table}_upd AFTER UPDATE ON ${table} BEGIN ${bumpByChild("NEW.child_id")} END;`);
+    out.push(`CREATE TRIGGER IF NOT EXISTS pulse_${table}_del AFTER DELETE ON ${table} BEGIN ${bumpByChild("OLD.child_id")} END;`);
+  }
+  out.push(`CREATE TRIGGER IF NOT EXISTS pulse_talks_ins AFTER INSERT ON talks BEGIN ${bumpByFamily("NEW.family_id")} END;`);
+  out.push(`CREATE TRIGGER IF NOT EXISTS pulse_talks_upd AFTER UPDATE ON talks BEGIN ${bumpByFamily("NEW.family_id")} END;`);
+  out.push(`CREATE TRIGGER IF NOT EXISTS pulse_talks_del AFTER DELETE ON talks BEGIN ${bumpByFamily("OLD.family_id")} END;`);
+  out.push(`CREATE TRIGGER IF NOT EXISTS pulse_users_ins AFTER INSERT ON users BEGIN ${bumpByFamily("NEW.family_id")} END;`);
+  out.push(`CREATE TRIGGER IF NOT EXISTS pulse_users_del AFTER DELETE ON users BEGIN ${bumpByFamily("OLD.family_id")} END;`);
+  out.push(
+    `CREATE TRIGGER IF NOT EXISTS pulse_users_upd AFTER UPDATE OF name, grade, relation, capability, family_id ON users BEGIN ${bumpByFamily("NEW.family_id")} ${bumpByFamily("OLD.family_id")} END;`,
+  );
+  // Selalu dibuat ulang saat start agar perbaikan definisi trigger ikut terpasang.
+  return out.map((sql) => `DROP TRIGGER IF EXISTS ${sql.match(/TRIGGER IF NOT EXISTS (\w+)/)[1]};\n${sql}`).join("\n");
+}
 
 // Migrasi ringan untuk database yang dibuat sebelum kolom-kolom baru ada.
 // Aman dijalankan berkali-kali.
