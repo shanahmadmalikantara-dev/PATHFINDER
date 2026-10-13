@@ -8,7 +8,8 @@
     "start": "next start -p ${PORT:-3000}",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
-    "seed": "node scripts/seed-demo.mjs"
+    "seed": "node scripts/seed-demo.mjs",
+    "seed:final": "node scripts/seed-demo-final.mjs"
   },
   "engines": {
     "node": ">=20"
