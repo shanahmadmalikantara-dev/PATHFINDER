@@ -4,8 +4,35 @@ import { ArrowRight, Heart, Lock, ShieldCheck, Smile, Sparkles } from "lucide-re
 import { getUser, homeFor } from "@/lib/auth";
 import { LogoMark } from "@/components/Logo";
 import PartnerLogos from "@/components/PartnerLogos";
+import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/lib/seo";
 
 export const metadata = { alternates: { canonical: "/" } };
+
+// Data terstruktur (schema.org) agar mesin pencari memahami PathFinder sebagai aplikasi web.
+const JSON_LD = {
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  name: SITE_NAME,
+  url: SITE_URL,
+  description: SITE_DESCRIPTION,
+  applicationCategory: "LifestyleApplication",
+  applicationSubCategory: "Pendampingan keluarga & kesejahteraan pelajar",
+  operatingSystem: "Web, Android, iOS (PWA)",
+  browserRequirements: "Membutuhkan JavaScript dan browser modern",
+  inLanguage: "id-ID",
+  image: `${SITE_URL}/og.png`,
+  slogan: "Dari Mengawasi Menuju Memahami",
+  isAccessibleForFree: true,
+  offers: { "@type": "Offer", price: "0", priceCurrency: "IDR" },
+  featureList: [
+    "Check-in energi dan suasana hati harian",
+    "Jurnal pribadi terenkripsi di perangkat anak",
+    "Roadmap masa depan dengan perencana AI",
+    "Ruang Bicara dua arah untuk anak dan orang tua",
+    "Panduan parenting berbasis pola mingguan",
+  ],
+  audience: { "@type": "Audience", audienceType: "Pelajar SMP/SMA dan orang tua" },
+};
 
 export default async function Landing() {
   const user = await getUser();
@@ -13,6 +40,11 @@ export default async function Landing() {
 
   return (
     <div className="relative min-h-dvh overflow-hidden">
+      <script
+        type="application/ld+json"
+        // JSON statis dari kode sendiri; "<" di-escape agar tidak bisa menutup tag script.
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(JSON_LD).replace(/</g, "\\u003c") }}
+      />
       {/* latar blob lembut */}
       <div className="pointer-events-none absolute -top-20 -left-32 size-[28rem] rounded-full bg-teal-300/30 blur-3xl" />
       <div className="pointer-events-none absolute top-40 -right-40 size-[30rem] rounded-full bg-coral-100/70 blur-3xl" />
