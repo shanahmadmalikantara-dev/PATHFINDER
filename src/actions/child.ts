@@ -1,11 +1,13 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { after } from "next/server";
 import { requireRole } from "@/lib/auth";
 import { db, type Goal, type Milestone } from "@/lib/db";
 import { today, weekStart } from "@/lib/dates";
 import { ENERGY, GOAL_CATEGORIES, MOODS } from "@/lib/constants";
-import { kopilotReply } from "@/lib/gemini";
+import { geminiEnabled, kopilotReply } from "@/lib/gemini";
+import { refreshGuide } from "@/lib/guide";
 import { fallbackReply } from "@/lib/kopilot-fallback";
 import type { FormState } from "./auth";
 
@@ -22,6 +24,8 @@ export async function saveCheckin(energy: number, mood?: string | null) {
        mood = COALESCE(excluded.mood, checkins.mood)`,
   ).run(me.id, today(), energy, m);
   refresh();
+  // Panduan Parenting versi Gemini dibuat ulang di latar belakang (tidak menunda respons)
+  if (geminiEnabled()) after(() => refreshGuide(me.id));
 }
 
 // ---------------- Target mingguan ----------------

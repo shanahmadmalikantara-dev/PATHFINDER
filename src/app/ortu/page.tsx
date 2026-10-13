@@ -1,13 +1,14 @@
 import Link from "next/link";
-import { Suspense } from "react";
+import { after } from "next/server";
 import {
   ArrowRight, BookOpen, Link2, CheckCircle2, Clock, Eye, HeartHandshake, Lightbulb, Lock, MessageSquare, Quote, ShieldAlert, Sparkles, XCircle,
 } from "lucide-react";
 import { requireRole } from "@/lib/auth";
 import { getActiveTalk, getCheckins, getChildForParent, getFamily, getWeekGoals, goalsPercent, talkTopics } from "@/lib/data";
 import { greeting, shortDate, today } from "@/lib/dates";
-import { analyze, type ParentInsight } from "@/lib/insight";
-import { geminiEnabled, personalizeGuide } from "@/lib/gemini";
+import { analyze } from "@/lib/insight";
+import { geminiEnabled } from "@/lib/gemini";
+import { guideSignature, refreshGuide, storedGuide } from "@/lib/guide";
 import { energyLabel } from "@/lib/constants";
 import { EnergyChart, ProgressBar, ProgressRing } from "@/components/Charts";
 import CopyCode from "@/components/CopyCode";
@@ -17,8 +18,9 @@ import PartnerLogos from "@/components/PartnerLogos";
 export const metadata = { title: "Beranda Orang Tua" };
 
 export default async function ParentHome({ searchParams }: { searchParams: Promise<{ anak?: string }> }) {
-  const me = await requireRole("parent");
-  const { child, children } = getChildForParent(me, (await searchParams).anak);
+  // Dua langkah async yang tidak saling bergantung dijalankan bersamaan.
+  const [me, sp] = await Promise.all([requireRole("parent"), searchParams]);
+  const { child, children } = getChildForParent(me, sp.anak);
 
   if (!child) {
     const fam = getFamily(me.family_id);
@@ -38,6 +40,13 @@ export default async function ParentHome({ searchParams }: { searchParams: Promi
   const ins = analyze({ childName: child.name, checkins, goals, goalsPercent: gp, capability: me.capability });
   const talk = getActiveTalk(child.id);
   const last = checkins[checkins.length - 1];
+
+  // Panduan Gemini hanya DIBACA dari database (tanpa memanggil Gemini di sini).
+  // Bila belum ada untuk check-in terakhir, dibuat di latar belakang setelah respons terkirim.
+  const sig = guideSignature(checkins);
+  const aiGuide = storedGuide(child.id, sig);
+  const guidePending = !aiGuide && !!sig && geminiEnabled();
+  if (guidePending) after(() => refreshGuide(child.id));
 
   return (
     <div className="space-y-6">
@@ -144,9 +153,7 @@ export default async function ParentHome({ searchParams }: { searchParams: Promi
             <h2 className="flex items-center gap-2 text-xl font-bold"><Lightbulb size={20} /> Panduan Tindakan Parenting</h2>
             <span className="chip bg-teal-300 text-teal-700">FOKUS: {ins.focus.toUpperCase()}</span>
           </div>
-          <Suspense fallback={<GuideBox text={ins.guide} ai={false} loading={geminiEnabled()} />}>
-            <Guide ins={ins} familyId={me.family_id!} childName={child.name} relation={me.relation ?? "Orang tua"} />
-          </Suspense>
+          <GuideBox text={aiGuide ?? ins.guide} ai={!!aiGuide} loading={guidePending} />
           <p className="mt-4 flex items-start gap-2 text-xs text-white/70"><Sparkles size={14} className="shrink-0" /> Analisis Pola Mingguan PathFinder AI • disusun dari data agregat, tanpa membaca jurnal anak. Bukan diagnosis.</p>
           <Link href="/ortu/bicara" className="btn mt-5 bg-teal-300 text-teal-700 hover:brightness-105">Buka Ruang Bicara <ArrowRight size={16} /></Link>
         </section>
@@ -222,28 +229,11 @@ export default async function ParentHome({ searchParams }: { searchParams: Promi
   );
 }
 
-async function Guide({ ins, familyId, childName, relation }: { ins: ParentInsight; familyId: number; childName: string; relation: string }) {
-  const ai = await personalizeGuide({
-    familyId,
-    childName,
-    parentRelation: relation,
-    facts: {
-      "Situasi utama": ins.focus,
-      "Konsistensi check-in 7 hari": `${ins.consistency.percent}% (${ins.consistency.label})`,
-      "Tren energi": ins.energy.label,
-      "Progres target mingguan": `${ins.goals.percent}% (${ins.goals.label})`,
-      "Suasana hati umum": ins.mood.label,
-    },
-    baseGuide: ins.guide,
-  });
-  return <GuideBox text={ai ?? ins.guide} ai={!!ai} />;
-}
-
 function GuideBox({ text, ai, loading }: { text: string; ai: boolean; loading?: boolean }) {
   return (
     <div className="mt-5 rounded-2xl bg-white/10 p-5">
       <p className="text-[17px] leading-relaxed italic">“{text}”</p>
-      {(ai || loading) && <p className="mt-3 text-xs font-semibold text-teal-300">{loading ? "Gemini sedang mempersonalisasi…" : "Dipersonalisasi oleh Gemini AI"}</p>}
+      {(ai || loading) && <p className="mt-3 text-xs font-semibold text-teal-300">{loading ? "Gemini sedang menyiapkan versi yang lebih personal…" : "Dipersonalisasi oleh Gemini AI"}</p>}
     </div>
   );
 }
