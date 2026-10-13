@@ -123,7 +123,7 @@ export default function AppShell({
           <LogoMark size={34} className="rounded-xl shadow-sm lg:hidden" />
           <div className="min-w-0 flex-1 leading-tight">
             <p className="truncate text-sm font-bold">
-              {role === "child" ? "PathFinder Portal" : (
+              {role === "child" ? "PathFinder AI" : (
                 <span className="chip bg-primary-soft text-primary-strong">Orang Tua • Ruang Dampingan</span>
               )}
             </p>
