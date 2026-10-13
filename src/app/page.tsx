@@ -5,6 +5,8 @@ import { getUser, homeFor } from "@/lib/auth";
 import { LogoMark } from "@/components/Logo";
 import PartnerLogos from "@/components/PartnerLogos";
 
+export const metadata = { alternates: { canonical: "/" } };
+
 export default async function Landing() {
   const user = await getUser();
   if (user) redirect(homeFor(user.role));

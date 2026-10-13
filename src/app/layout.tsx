@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Plus_Jakarta_Sans } from "next/font/google";
 import RegisterSW from "@/components/RegisterSW";
+import { OG_IMAGE, SITE_DESCRIPTION, SITE_NAME, SITE_URL, openGraphFor } from "@/lib/seo";
 import "./globals.css";
 
 const jakarta = Plus_Jakarta_Sans({
@@ -10,9 +11,30 @@ const jakarta = Plus_Jakarta_Sans({
 });
 
 export const metadata: Metadata = {
-  title: { default: "PathFinder AI", template: "%s · PathFinder AI" },
-  description: "Ruang tumbuh bersama untuk remaja dan orang tua — Dari Mengawasi Menuju Memahami.",
-  applicationName: "PathFinder AI",
+  metadataBase: new URL(SITE_URL),
+  title: { default: "PathFinder AI — Dari Mengawasi Menuju Memahami", template: "%s | PathFinder AI" },
+  description: SITE_DESCRIPTION,
+  applicationName: SITE_NAME,
+  keywords: [
+    "PathFinder AI",
+    "burnout pelajar",
+    "kesehatan mental remaja",
+    "komunikasi orang tua dan anak",
+    "parenting remaja",
+    "check-in energi",
+    "jurnal pribadi terenkripsi",
+    "roadmap masa depan",
+    "aplikasi keluarga",
+  ],
+  authors: [{ name: "Tim PathFinder AI" }],
+  // Canonical dipasang per halaman publik (bukan di sini) agar halaman lain tidak ikut menunjuk ke "/".
+  openGraph: openGraphFor("/", "PathFinder AI — Dari Mengawasi Menuju Memahami"),
+  twitter: {
+    card: "summary_large_image",
+    title: "PathFinder AI — Dari Mengawasi Menuju Memahami",
+    description: SITE_DESCRIPTION,
+    images: [OG_IMAGE.url],
+  },
   appleWebApp: { capable: true, title: "PathFinder", statusBarStyle: "default" },
   icons: {
     icon: [
