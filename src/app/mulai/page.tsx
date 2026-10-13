@@ -29,7 +29,7 @@ export default function Onboarding() {
   const next = () => router.push(`/daftar?peran=${role === "child" ? "anak" : "ortu"}`);
 
   return (
-    <div data-role={role} className="min-h-dvh px-4 py-6 sm:py-10">
+    <main data-role={role} className="min-h-dvh px-4 py-6 sm:py-10">
       <div className="mx-auto max-w-4xl">
         {step === 1 && (
           <div className="animate-pop space-y-5">
@@ -186,7 +186,7 @@ export default function Onboarding() {
           </div>
         )}
       </div>
-    </div>
+    </main>
   );
 }
 

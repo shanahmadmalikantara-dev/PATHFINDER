@@ -14,7 +14,7 @@ export default function RegisterForm({ initialRole, initialCode }: { initialRole
   const [state, action, pending] = useActionState(register, undefined);
 
   return (
-    <div data-role={role} className="relative grid min-h-dvh place-items-center overflow-hidden px-4 py-8">
+    <main data-role={role} className="relative grid min-h-dvh place-items-center overflow-hidden px-4 py-8">
       <div className="pointer-events-none absolute -top-10 left-0 size-96 rounded-full bg-coral-100/60 blur-3xl" />
       <div className="pointer-events-none absolute right-0 bottom-0 size-96 rounded-full bg-teal-100/70 blur-3xl" />
 
@@ -56,8 +56,8 @@ export default function RegisterForm({ initialRole, initialCode }: { initialRole
               </Field>
             ) : (
               <div>
-                <label className="label">Saya adalah</label>
-                <div className="flex gap-2">
+                <p id="daftar-relasi" className="label">Saya adalah</p>
+                <div role="group" aria-labelledby="daftar-relasi" className="flex gap-2">
                   {["Ibu", "Ayah", "Wali"].map((r, i) => (
                     <label key={r} className="flex-1">
                       <input type="radio" name="relation" value={r} defaultChecked={i === 0} className="peer sr-only" />
@@ -93,8 +93,8 @@ export default function RegisterForm({ initialRole, initialCode }: { initialRole
             </div>
             {mode === "gabung" ? (
               <div>
-                <label className="label">Kode Penghubung (6 karakter)</label>
-                <input
+                <label htmlFor="daftar-kode" className="label">Kode Penghubung (6 karakter)</label>
+                <input id="daftar-kode"
                   name="code"
                   defaultValue={initialCode}
                   required
@@ -130,18 +130,19 @@ export default function RegisterForm({ initialRole, initialCode }: { initialRole
           </p>
         </div>
       </form>
-    </div>
+    </main>
   );
 }
 
 function Field({ label, icon: Icon, children }: { label: string; icon: React.ElementType; children: React.ReactNode }) {
   return (
-    <div>
-      <label className="label">{label}</label>
-      <div className="relative">
-        <Icon size={18} className="pointer-events-none absolute top-1/2 left-3.5 -translate-y-1/2 text-muted" />
+    // <label> membungkus input agar pembaca layar mengaitkan judul dengan kolomnya
+    <label className="block">
+      <span className="label">{label}</span>
+      <span className="relative block">
+        <Icon size={18} className="pointer-events-none absolute top-1/2 left-3.5 -translate-y-1/2 text-muted" aria-hidden />
         {children}
-      </div>
-    </div>
+      </span>
+    </label>
   );
 }

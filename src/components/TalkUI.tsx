@@ -1,7 +1,7 @@
 "use client";
 
 // Komponen Ruang Bicara yang dipakai bersama oleh Mode Anak & Mode Orang Tua.
-import { useState, useTransition } from "react";
+import { useId, useState, useTransition } from "react";
 import { CalendarClock, Check, CheckCircle2, Clock, Handshake, Hourglass, MessageCircleHeart, Plus, Send, X } from "lucide-react";
 import { cancelTalk, finishTalk, respondTalk, startTalk, type ResponseKey } from "@/actions/talk";
 import { TALK_TIMES } from "@/lib/constants";
@@ -37,6 +37,7 @@ export function TalkComposer({
   const [note, setNote] = useState("");
   const [err, setErr] = useState("");
   const [pending, start] = useTransition();
+  const noteId = useId(); // unik per komposer (orang tua bisa melihat beberapa sekaligus)
   const toggle = (t: string) =>
     setTopics((xs) => (xs.includes(t) ? xs.filter((x) => x !== t) : xs.length >= 3 ? xs : [...xs, t]));
 
@@ -95,8 +96,9 @@ export function TalkComposer({
         </div>
       </div>
       <div>
-        <label className="label">Pesan singkat untuk {partnerName} (opsional)</label>
+        <label htmlFor={noteId} className="label">Pesan singkat untuk {partnerName} (opsional)</label>
         <textarea
+          id={noteId}
           value={note}
           onChange={(e) => setNote(e.target.value)}
           maxLength={140}

@@ -9,23 +9,23 @@ import { LogoMark } from "@/components/Logo";
 export default function LoginForm({ demo, demoMissing }: { demo: boolean; demoMissing: boolean }) {
   const [state, action, pending] = useActionState(login, undefined);
   return (
-    <div className="relative grid min-h-dvh place-items-center overflow-hidden px-4 py-10">
+    <main className="relative grid min-h-dvh place-items-center overflow-hidden px-4 py-10">
       <div className="pointer-events-none absolute -top-20 -left-20 size-96 rounded-full bg-teal-100/70 blur-3xl" />
       <div className="pointer-events-none absolute -right-20 -bottom-20 size-96 rounded-full bg-coral-100/70 blur-3xl" />
       <div className="relative w-full max-w-md space-y-4">
         <form action={action} className="card space-y-4 sm:p-8">
-          <Link href="/" className="mx-auto block w-fit"><LogoMark size={64} className="rounded-2xl shadow" /></Link>
+          <Link href="/" className="mx-auto block w-fit" aria-label="Kembali ke beranda PathFinder AI"><LogoMark size={64} className="rounded-2xl shadow" /></Link>
           <div className="text-center">
             <h1 className="text-2xl font-extrabold tracking-tight">Selamat datang kembali</h1>
             <p className="mt-1 text-sm text-muted">Masuk ke ruang tumbuh keluargamu.</p>
           </div>
           <div>
-            <label className="label">Email</label>
-            <input name="email" type="email" required autoComplete="email" className="input" placeholder="nama@email.com" />
+            <label htmlFor="login-email" className="label">Email</label>
+            <input id="login-email" name="email" type="email" required autoComplete="email" className="input" placeholder="nama@email.com" />
           </div>
           <div>
-            <label className="label">Kata Sandi</label>
-            <input name="password" type="password" required autoComplete="current-password" className="input" placeholder="••••••••" />
+            <label htmlFor="login-password" className="label">Kata Sandi</label>
+            <input id="login-password" name="password" type="password" required autoComplete="current-password" className="input" placeholder="••••••••" />
           </div>
           {state?.error && <p className="rounded-xl bg-coral-50 px-4 py-2 text-sm font-medium text-coral-700">{state.error}</p>}
           <button disabled={pending} className="btn-primary w-full py-3.5">{pending ? "Masuk…" : "Masuk"}</button>
@@ -50,6 +50,6 @@ export default function LoginForm({ demo, demoMissing }: { demo: boolean; demoMi
           </div>
         )}
       </div>
-    </div>
+    </main>
   );
 }

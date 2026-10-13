@@ -76,7 +76,7 @@ export default function AppShell({
   return (
     <div data-role={role} className="min-h-dvh">
       {/* ===== Sidebar (desktop) ===== */}
-      <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 flex-col border-r border-line bg-white px-5 py-6 lg:flex">
+      <aside aria-label="Navigasi samping" className="fixed inset-y-0 left-0 z-30 hidden w-64 flex-col border-r border-line bg-white px-5 py-6 lg:flex">
         <Link href={nav[0].href}>
           <Logo />
         </Link>

@@ -65,7 +65,7 @@ export default async function ChildHome() {
                 <span className="grid size-11 place-items-center rounded-full bg-white text-violet"><Lock size={18} /></span>
                 <div>
                   <h2 className="text-xl font-bold text-violet">Catatan Pribadi</h2>
-                  <p className="text-xs text-violet/70">Ruang aman tanpa filter</p>
+                  <p className="text-xs text-violet">Ruang aman tanpa filter</p>
                 </div>
               </div>
               <span className="chip bg-white text-violet"><ShieldCheck size={12} /> Privat & Terkunci</span>

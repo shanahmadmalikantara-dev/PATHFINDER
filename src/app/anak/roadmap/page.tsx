@@ -121,9 +121,9 @@ function MilestoneRow({ m, icon: Icon }: { m: Milestone; icon: LucideIcon }) {
           </div>
           <MilestoneMenu m={m} />
         </div>
-        <h3 className={`mt-3 font-bold ${current ? "text-xl" : "text-lg"} ${done ? "text-ink/70" : ""}`}>
+        <h2 className={`mt-3 font-bold ${current ? "text-xl" : "text-lg"} ${done ? "text-ink/70" : ""}`}>
           {m.horizon === "jangka_panjang" && <Trophy size={18} className="mr-1 inline text-amber" />}{m.title}
-        </h3>
+        </h2>
         {m.dream && <p className="mt-1 text-xs font-semibold text-coral-700">Untuk impian: {m.dream}</p>}
         {m.description && <p className="mt-1 text-sm text-muted">{m.description}</p>}
         {m.period ? (

@@ -74,16 +74,16 @@ export function AddMilestoneButton({ horizon }: { horizon: string }) {
               ))}
             </div>
             <div>
-              <label className="label">Judul</label>
-              <input name="title" required maxLength={80} className="input" placeholder="Contoh: Ikut lomba coding tingkat nasional" />
+              <label htmlFor="milestone-field-1" className="label">Judul</label>
+              <input id="milestone-field-1" name="title" required maxLength={80} className="input" placeholder="Contoh: Ikut lomba coding tingkat nasional" />
             </div>
             <div>
-              <label className="label">Deskripsi (opsional)</label>
-              <textarea name="description" rows={3} maxLength={240} className="input resize-none" placeholder="Langkah apa yang perlu dilakukan?" />
+              <label htmlFor="milestone-field-2" className="label">Deskripsi (opsional)</label>
+              <textarea id="milestone-field-2" name="description" rows={3} maxLength={240} className="input resize-none" placeholder="Langkah apa yang perlu dilakukan?" />
             </div>
             <div>
-              <label className="label">Target waktu (opsional)</label>
-              <input name="target_date" maxLength={40} className="input" placeholder="Contoh: Akhir Februari" />
+              <label htmlFor="milestone-field-3" className="label">Target waktu (opsional)</label>
+              <input id="milestone-field-3" name="target_date" maxLength={40} className="input" placeholder="Contoh: Akhir Februari" />
             </div>
             <label className="flex items-start gap-3 rounded-2xl bg-teal-50 p-3 text-sm">
               <input type="checkbox" name="shared" className="mt-1 size-4 accent-[var(--color-teal)]" />

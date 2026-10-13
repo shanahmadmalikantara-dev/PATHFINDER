@@ -142,7 +142,7 @@ export default function Journal({ userId }: { userId: number }) {
           <textarea
             value={text} onChange={(e) => setText(e.target.value)} rows={6} maxLength={3000}
             placeholder="Curahkan isi hatimu di sini… Minggu ini aku merasa…"
-            className="w-full resize-none bg-transparent text-[15px] leading-relaxed outline-none placeholder:text-muted/60"
+            className="w-full resize-none bg-transparent text-[15px] leading-relaxed outline-none placeholder:text-muted"
           />
           <div className="flex items-center justify-between text-xs text-muted">
             <span className="flex items-center gap-1"><Lock size={12} /> Terenkripsi AES-256</span>

@@ -154,7 +154,7 @@ export default async function ParentHome({ searchParams }: { searchParams: Promi
             <span className="chip bg-teal-300 text-teal-700">FOKUS: {ins.focus.toUpperCase()}</span>
           </div>
           <GuideBox text={aiGuide ?? ins.guide} ai={!!aiGuide} loading={guidePending} />
-          <p className="mt-4 flex items-start gap-2 text-xs text-white/70"><Sparkles size={14} className="shrink-0" /> Analisis Pola Mingguan PathFinder AI • disusun dari data agregat, tanpa membaca jurnal anak. Bukan diagnosis.</p>
+          <p className="mt-4 flex items-start gap-2 text-xs text-white/85"><Sparkles size={14} className="shrink-0" /> Analisis Pola Mingguan PathFinder AI • disusun dari data agregat, tanpa membaca jurnal anak. Bukan diagnosis.</p>
           <Link href="/ortu/bicara" className="btn mt-5 bg-teal-300 text-teal-700 hover:brightness-105">Buka Ruang Bicara <ArrowRight size={16} /></Link>
         </section>
 
@@ -233,7 +233,7 @@ function GuideBox({ text, ai, loading }: { text: string; ai: boolean; loading?: 
   return (
     <div className="mt-5 rounded-2xl bg-white/10 p-5">
       <p className="text-[17px] leading-relaxed italic">“{text}”</p>
-      {(ai || loading) && <p className="mt-3 text-xs font-semibold text-teal-300">{loading ? "Gemini sedang menyiapkan versi yang lebih personal…" : "Dipersonalisasi oleh Gemini AI"}</p>}
+      {(ai || loading) && <p className="mt-3 text-xs font-semibold text-teal-100">{loading ? "Gemini sedang menyiapkan versi yang lebih personal…" : "Dipersonalisasi oleh Gemini AI"}</p>}
     </div>
   );
 }

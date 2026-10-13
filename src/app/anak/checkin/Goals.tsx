@@ -128,8 +128,8 @@ function AddGoal({ onClose }: { onClose: () => void }) {
           <button type="button" onClick={onClose} aria-label="Tutup"><X size={20} /></button>
         </div>
         <div>
-          <label className="label">Kategori</label>
-          <div className="grid grid-cols-2 gap-2">
+          <p id="goal-kategori" className="label">Kategori</p>
+          <div role="group" aria-labelledby="goal-kategori" className="grid grid-cols-2 gap-2">
             {GOAL_CATEGORIES.map((c, i) => (
               <label key={c.value}>
                 <input type="radio" name="category" value={c.value} defaultChecked={i === 0} className="peer sr-only" />
@@ -141,21 +141,21 @@ function AddGoal({ onClose }: { onClose: () => void }) {
           </div>
         </div>
         <div>
-          <label className="label">Nama target</label>
-          <input name="title" required maxLength={60} className="input" placeholder="Contoh: Belajar UTBK & Sekolah" />
+          <label htmlFor="goal-field-1" className="label">Nama target</label>
+          <input id="goal-field-1" name="title" required maxLength={60} className="input" placeholder="Contoh: Belajar UTBK & Sekolah" />
         </div>
         <div>
-          <label className="label">Detail (opsional)</label>
-          <input name="detail" maxLength={80} className="input" placeholder="Contoh: Fokus Kimia & Literasi Inggris" />
+          <label htmlFor="goal-field-2" className="label">Detail (opsional)</label>
+          <input id="goal-field-2" name="detail" maxLength={80} className="input" placeholder="Contoh: Fokus Kimia & Literasi Inggris" />
         </div>
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className="label">Jumlah</label>
-            <input name="target" type="number" min={1} max={99} defaultValue={3} className="input" />
+            <label htmlFor="goal-field-3" className="label">Jumlah</label>
+            <input id="goal-field-3" name="target" type="number" min={1} max={99} defaultValue={3} className="input" />
           </div>
           <div>
-            <label className="label">Satuan</label>
-            <input name="unit" list="units" defaultValue="sesi" maxLength={12} className="input" />
+            <label htmlFor="goal-field-4" className="label">Satuan</label>
+            <input id="goal-field-4" name="unit" list="units" defaultValue="sesi" maxLength={12} className="input" />
             <datalist id="units">
               <option value="jam" /><option value="sesi" /><option value="modul" /><option value="bab" /><option value="kali" /><option value="hari" />
             </datalist>

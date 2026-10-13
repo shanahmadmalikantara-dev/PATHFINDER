@@ -78,7 +78,7 @@ export default function Chat({ mode, name, ai }: { mode: "bicara" | "rencana"; n
         <Link href={mode === "rencana" ? "/anak/roadmap" : "/anak/bicara"} className="grid size-10 place-items-center rounded-full bg-white shadow-sm" aria-label="Kembali"><ArrowLeft size={18} /></Link>
         <span className="grid size-11 place-items-center rounded-2xl bg-violet text-white"><Bot size={22} /></span>
         <div className="min-w-0 flex-1 leading-tight">
-          <p className="font-bold">{mode === "bicara" ? "Kopilot AI Bicara" : "Kopilot Rencana Belajar"}</p>
+          <h1 className="font-bold">{mode === "bicara" ? "Kopilot AI Bicara" : "Kopilot Rencana Belajar"}</h1>
           <p className="text-xs text-muted">{label} · Tidak disimpan di server</p>
         </div>
         {msgs.length > 1 && (

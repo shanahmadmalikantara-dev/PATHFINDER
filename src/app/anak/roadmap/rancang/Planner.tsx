@@ -123,8 +123,8 @@ export default function Planner({ name, grade, ai }: { name: string; grade: stri
             </p>
           </div>
           <div>
-            <label className="label">Impianmu</label>
-            <textarea value={dream} onChange={(e) => setDream(e.target.value)} maxLength={160} rows={2} className="input resize-none text-lg" placeholder="Contoh: pengen kuliah di MIT" />
+            <label htmlFor="planner-field-1" className="label">Impianmu</label>
+            <textarea id="planner-field-1" value={dream} onChange={(e) => setDream(e.target.value)} maxLength={160} rows={2} className="input resize-none text-lg" placeholder="Contoh: pengen kuliah di MIT" />
             <div className="mt-2 flex flex-wrap gap-2">
               {EXAMPLES.map((x) => (
                 <button key={x} type="button" onClick={() => setDream(x)} className="chip bg-sky px-3 py-1.5 text-xs text-ink/75 hover:bg-coral-50">{x}</button>
@@ -141,12 +141,12 @@ export default function Planner({ name, grade, ai }: { name: string; grade: stri
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
-              <label className="label">Kekuatan / minatmu (opsional)</label>
-              <input value={strengths} onChange={(e) => setStrengths(e.target.value)} maxLength={200} className="input" placeholder="Contoh: suka Matematika, bisa ngoding dasar" />
+              <label htmlFor="planner-field-2" className="label">Kekuatan / minatmu (opsional)</label>
+              <input id="planner-field-2" value={strengths} onChange={(e) => setStrengths(e.target.value)} maxLength={200} className="input" placeholder="Contoh: suka Matematika, bisa ngoding dasar" />
             </div>
             <div>
-              <label className="label">Kendala (opsional)</label>
-              <input value={constraints} onChange={(e) => setConstraints(e.target.value)} maxLength={200} className="input" placeholder="Contoh: bahasa Inggris masih lemah" />
+              <label htmlFor="planner-field-3" className="label">Kendala (opsional)</label>
+              <input id="planner-field-3" value={constraints} onChange={(e) => setConstraints(e.target.value)} maxLength={200} className="input" placeholder="Contoh: bahasa Inggris masih lemah" />
             </div>
           </div>
           <p className="flex items-start gap-2 rounded-2xl bg-violet-50 p-3 text-xs text-violet">

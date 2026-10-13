@@ -50,7 +50,7 @@ export default async function Landing() {
       <div className="pointer-events-none absolute top-40 -right-40 size-[30rem] rounded-full bg-coral-100/70 blur-3xl" />
       <div className="pointer-events-none absolute -bottom-40 left-1/3 size-[26rem] rounded-full bg-violet-100/60 blur-3xl" />
 
-      <div className="absolute top-28 left-10 hidden animate-float items-center gap-3 rounded-full bg-white px-4 py-2.5 shadow-lg xl:flex">
+      <div aria-hidden className="absolute top-28 left-10 hidden animate-float items-center gap-3 rounded-full bg-white px-4 py-2.5 shadow-lg xl:flex">
         <span className="grid size-9 place-items-center rounded-full bg-coral-100 text-coral-700">
           <Heart size={16} />
         </span>
@@ -59,7 +59,7 @@ export default async function Landing() {
           <span className="text-muted">Terenkripsi & hanya di HP-mu</span>
         </span>
       </div>
-      <div className="absolute right-12 bottom-24 hidden rotate-2 animate-float items-center gap-3 rounded-full bg-white px-4 py-2.5 shadow-lg [animation-delay:1.5s] xl:flex">
+      <div aria-hidden className="absolute right-12 bottom-24 hidden rotate-2 animate-float items-center gap-3 rounded-full bg-white px-4 py-2.5 shadow-lg [animation-delay:1.5s] xl:flex">
         <span className="grid size-9 place-items-center rounded-full bg-teal-100 text-teal">
           <Sparkles size={16} />
         </span>
