@@ -1,6 +1,6 @@
 import "server-only";
 import crypto from "node:crypto";
-import bcrypt from "bcryptjs";
+import bcryptjs from "bcryptjs";
 import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { db, USER_COLUMNS, type Role, type User } from "./db";
@@ -8,12 +8,26 @@ import { db, USER_COLUMNS, type Role, type User } from "./db";
 const COOKIE = "pf_session";
 const SESSION_DAYS = 30;
 
+// Pengecek password: "bcrypt" native (dihitung di thread pool libuv, jadi banyak login
+// serentak bisa diproses paralel). Format hash sama persis dengan bcryptjs, sehingga
+// password lama tetap berlaku. Kalau modul native gagal dimuat, otomatis pakai bcryptjs.
+type Hasher = { hash(pw: string, rounds: number): Promise<string>; compare(pw: string, hash: string): Promise<boolean> };
+let hasher: Promise<Hasher> | undefined;
+function getHasher(): Promise<Hasher> {
+  return (hasher ??= import("bcrypt")
+    .then((m) => (m.default ?? m) as Hasher)
+    .catch((e: Error) => {
+      console.error("[auth] bcrypt native tidak bisa dimuat, memakai bcryptjs:", e.message);
+      return bcryptjs as Hasher;
+    }));
+}
+
 export async function hashPassword(pw: string) {
-  return bcrypt.hash(pw, 10);
+  return (await getHasher()).hash(pw, 10);
 }
 
 export async function verifyPassword(pw: string, hash: string) {
-  return bcrypt.compare(pw, hash);
+  return (await getHasher()).compare(pw, hash);
 }
 
 /** Buat sesi login baru dan simpan token di cookie httpOnly. */
