@@ -9,7 +9,8 @@
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
     "seed": "node scripts/seed-demo.mjs",
-    "seed:final": "node scripts/seed-demo-final.mjs"
+    "seed:final": "node scripts/seed-demo-final.mjs",
+    "ukur": "node scripts/ukur-kinerja.mjs"
   },
   "engines": {
     "node": ">=20"
