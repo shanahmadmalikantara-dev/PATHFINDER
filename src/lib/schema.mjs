@@ -111,6 +111,15 @@ CREATE TABLE IF NOT EXISTS family_pulse (
   updated_at  TEXT NOT NULL DEFAULT (datetime('now'))
 );
 
+-- Pemakaian AI per akun per hari (batas harian agar kuota Gemini tidak dihabiskan satu orang).
+CREATE TABLE IF NOT EXISTS ai_usage (
+  user_id  INTEGER NOT NULL,
+  day      TEXT NOT NULL,      -- YYYY-MM-DD (WIB)
+  kind     TEXT NOT NULL,      -- chat / plan / guide
+  count    INTEGER NOT NULL DEFAULT 0,
+  PRIMARY KEY (user_id, day, kind)
+);
+
 CREATE INDEX IF NOT EXISTS idx_checkins_child_date ON checkins(child_id, date);
 CREATE INDEX IF NOT EXISTS idx_goals_child_week ON goals(child_id, week);
 CREATE INDEX IF NOT EXISTS idx_milestones_child ON milestones(child_id);

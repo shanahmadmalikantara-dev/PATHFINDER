@@ -28,6 +28,7 @@ export default function Planner({ name, grade, ai }: { name: string; grade: stri
   const [constraints, setConstraints] = useState("");
   const [feedback, setFeedback] = useState("");
   const [plan, setPlan] = useState<Plan | null>(null);
+  const [limited, setLimited] = useState(false);
   const [pathId, setPathId] = useState<string>("");
   const [steps, setSteps] = useState<Set<number>>(new Set());
   const [habits, setHabits] = useState<Set<number>>(new Set());
@@ -52,6 +53,7 @@ export default function Planner({ name, grade, ai }: { name: string; grade: stri
         const r = await planDream({ dream, hours, strengths, constraints, feedback: withFeedback ? feedback : undefined });
         if (r.error || !r.plan) return setErr(r.error ?? "Gagal menyusun rencana. Coba lagi ya.");
         setPlan(r.plan);
+        setLimited(!!r.limited);
         setFeedback("");
         choosePath(r.plan.paths[0]);
         window.scrollTo({ top: 0, behavior: "smooth" });
@@ -167,7 +169,7 @@ export default function Planner({ name, grade, ai }: { name: string; grade: stri
           <section className="card space-y-4 bg-gradient-to-br from-coral-50 to-white sm:p-8">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <span className="chip bg-white text-coral-700"><Bot size={12} /> Analisis PathFinder</span>
-              <span className="text-xs text-muted">{plan.source === "gemini" ? "Disusun oleh Gemini AI" : "Disusun oleh mesin perencana PathFinder"}</span>
+              <span className="text-xs text-muted">{plan.source === "gemini" ? "Disusun oleh Gemini AI" : limited ? "Jatah AI hari ini habis · disusun mesin perencana PathFinder" : "Disusun oleh mesin perencana PathFinder"}</span>
             </div>
             <p className="text-lg leading-relaxed">{plan.analysis}</p>
             {plan.needs.length > 0 && (

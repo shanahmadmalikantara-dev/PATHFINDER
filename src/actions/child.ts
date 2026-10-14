@@ -8,6 +8,7 @@ import { today, weekStart } from "@/lib/dates";
 import { ENERGY, GOAL_CATEGORIES, MOODS } from "@/lib/constants";
 import { geminiEnabled, kopilotReply } from "@/lib/gemini";
 import { refreshGuide } from "@/lib/guide";
+import { refundAiQuota, takeAiQuota } from "@/lib/ai-quota";
 import { fallbackReply } from "@/lib/kopilot-fallback";
 import type { FormState } from "./auth";
 
@@ -145,11 +146,17 @@ export async function askKopilot(mode: "bicara" | "rencana", history: { role: "u
     .slice(-16);
   const userMsgs = msgs.filter((x) => x.role === "user");
   const last = userMsgs.at(-1)?.text ?? "";
-  try {
-    const ai = await kopilotReply(m, { name: me.name, grade: me.grade, context: kopilotContext(me.id, m) }, msgs);
-    if (ai) return { text: ai.text, source: "gemini" as const };
-  } catch (e) {
-    console.error("[kopilot]", (e as Error).message);
+  // Batas harian per akun: kalau habis, pakai mode simulasi (bukan error)
+  const allowed = geminiEnabled() && takeAiQuota(me, "chat");
+  if (allowed) {
+    try {
+      const ai = await kopilotReply(m, { name: me.name, grade: me.grade, context: kopilotContext(me.id, m) }, msgs);
+      if (ai) return { text: ai.text, source: "gemini" as const, limited: false };
+    } catch (e) {
+      console.error("[kopilot]", (e as Error).message);
+    }
+    refundAiQuota(me, "chat"); // Gemini gagal / kena kuota: jatah tidak dihitung
   }
-  return { text: fallbackReply(m, last, userMsgs.length - 1), source: "simulasi" as const };
+  const limited = geminiEnabled() && !allowed;
+  return { text: fallbackReply(m, last, userMsgs.length - 1), source: "simulasi" as const, limited };
 }

@@ -25,6 +25,7 @@ export default function Chat({ mode, name, ai }: { mode: "bicara" | "rencana"; n
   const intro: Msg = { role: "model", text: INTRO[mode](name) };
   const [msgs, setMsgs] = useState<Msg[]>([intro]);
   const [source, setSource] = useState<"gemini" | "simulasi" | null>(null);
+  const [limited, setLimited] = useState(false);
   const [input, setInput] = useState("");
   const [pending, start] = useTransition();
   const end = useRef<HTMLDivElement>(null);
@@ -58,6 +59,7 @@ export default function Chat({ mode, name, ai }: { mode: "bicara" | "rencana"; n
         // Pesan pembuka (dari model) tidak dikirim agar riwayat diawali pesan user
         const r = await askKopilot(mode, next.slice(1));
         setSource(r.source);
+        setLimited(!!r.limited);
         setMsgs((m) => [...m, { role: "model", text: r.text }]);
       } catch {
         setMsgs((m) => [...m, { role: "model", text: "Maaf, koneksiku lagi terputus. Coba kirim ulang pesanmu sebentar lagi ya." }]);
@@ -109,6 +111,11 @@ export default function Chat({ mode, name, ai }: { mode: "bicara" | "rencana"; n
         <div ref={end} />
       </div>
 
+      {limited && (
+        <p className="mt-2 rounded-2xl bg-violet-50 px-4 py-2 text-center text-xs text-violet">
+          Jatah AI-mu hari ini sudah habis, jadi Kopilot sementara memakai mode simulasi. Besok jatahnya terisi lagi.
+        </p>
+      )}
       <form onSubmit={(e) => { e.preventDefault(); send(input); }} className="mt-3 flex gap-2">
         <input value={input} onChange={(e) => setInput(e.target.value)} maxLength={1000} className="input rounded-full" placeholder="Ketik pesanmu…" />
         <button disabled={pending || !input.trim()} className="btn-primary aspect-square w-12 px-0" aria-label="Kirim"><Send size={18} /></button>

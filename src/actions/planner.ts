@@ -5,6 +5,8 @@ import { requireRole } from "@/lib/auth";
 import { db, type Milestone } from "@/lib/db";
 import { lastNDays, weekStart } from "@/lib/dates";
 import { HOURS_OPTIONS } from "@/lib/constants";
+import { geminiEnabled } from "@/lib/gemini";
+import { refundAiQuota, takeAiQuota } from "@/lib/ai-quota";
 import { aiPlan, rulePlan, type Plan, type PlannerInput, type PlannerProfile } from "@/lib/planner";
 
 const clip = (v: unknown, max: number) => String(v ?? "").replace(/\s+/g, " ").trim().slice(0, max);
@@ -24,7 +26,7 @@ function profileOf(me: { id: number; name: string; grade: string | null }): Plan
 }
 
 /** Langkah 1: anak menulis impian → PathFinder menyusun beberapa jalur pilihan. */
-export async function planDream(raw: PlannerInput): Promise<{ plan?: Plan; error?: string }> {
+export async function planDream(raw: PlannerInput): Promise<{ plan?: Plan; error?: string; limited?: boolean }> {
   const me = await requireRole("child");
   const input: PlannerInput = {
     dream: clip(raw?.dream, 160),
@@ -36,13 +38,18 @@ export async function planDream(raw: PlannerInput): Promise<{ plan?: Plan; error
   if (input.dream.length < 4) return { error: "Ceritakan impianmu sedikit lebih jelas ya (minimal 4 huruf)." };
 
   const profile = profileOf(me);
-  try {
-    const ai = await aiPlan(profile, input);
-    if (ai) return { plan: ai };
-  } catch (e) {
-    console.error("[planner]", (e as Error).message);
+  // Batas harian per akun: kalau habis, rencana disusun mesin rule-based
+  const allowed = geminiEnabled() && takeAiQuota(me, "plan");
+  if (allowed) {
+    try {
+      const ai = await aiPlan(profile, input);
+      if (ai) return { plan: ai };
+    } catch (e) {
+      console.error("[planner]", (e as Error).message);
+    }
+    refundAiQuota(me, "plan");
   }
-  return { plan: rulePlan(profile, input) };
+  return { plan: rulePlan(profile, input), limited: geminiEnabled() && !allowed };
 }
 
 export interface ApplySelection {

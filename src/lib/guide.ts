@@ -3,6 +3,7 @@ import { bumpFamily, db, type Checkin } from "./db";
 import { getCheckins, getWeekGoals, goalsPercent } from "./data";
 import { analyze } from "./insight";
 import { geminiEnabled, personalizeGuide } from "./gemini";
+import { refundAiQuota, takeAiQuota } from "./ai-quota";
 
 // ============================================================================
 //  Panduan Tindakan Parenting versi Gemini.
@@ -45,12 +46,14 @@ export async function refreshGuide(childId: number): Promise<void> {
   running.add(childId);
   try {
     const child = db
-      .prepare("SELECT id, name, family_id FROM users WHERE id = ? AND role = 'child'")
-      .get(childId) as { id: number; name: string; family_id: number | null } | undefined;
+      .prepare("SELECT id, name, email, family_id FROM users WHERE id = ? AND role = 'child'")
+      .get(childId) as { id: number; name: string; email: string; family_id: number | null } | undefined;
     if (!child?.family_id) return;
     const checkins = getCheckins(child.id, 14);
     const sig = guideSignature(checkins);
     if (!sig || storedGuide(child.id, sig)) return;
+    // Batas harian per anak; kalau habis, orang tua tetap melihat panduan rule-based
+    if (!takeAiQuota(child, "guide")) return;
 
     const goals = getWeekGoals(child.id);
     const gp = goalsPercent(goals);
@@ -74,6 +77,7 @@ export async function refreshGuide(childId: number): Promise<void> {
       baseGuide: ins.guide,
     });
     if (!text) {
+      refundAiQuota(child, "guide");
       failedAt.set(child.id, Date.now());
       return;
     }
