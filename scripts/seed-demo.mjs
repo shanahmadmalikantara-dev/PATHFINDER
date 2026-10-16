@@ -11,6 +11,7 @@
 // ============================================================================
 import Database from "better-sqlite3";
 import bcrypt from "bcryptjs";
+import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 import { SCHEMA, migrate } from "../src/lib/schema.mjs";
@@ -41,7 +42,22 @@ const run = db.transaction(() => {
   const old = db.prepare("SELECT family_id FROM users WHERE email IN ('shan@demo.id','putri@demo.id')").all();
   db.prepare("DELETE FROM users WHERE email IN ('shan@demo.id','putri@demo.id')").run();
   for (const { family_id } of old) if (family_id) db.prepare("DELETE FROM families WHERE id = ? AND NOT EXISTS (SELECT 1 FROM users WHERE family_id = ?)").run(family_id, family_id);
-  db.prepare("DELETE FROM families WHERE code = 'PATH07'").run();
+  // Kalau masih ada akun lain yang bergabung ke keluarga PATH07 (mis. pengunjung yang
+  // memasukkan kode demo), keluarga mereka TIDAK dihapus: cukup diberi kode baru,
+  // supaya kode PATH07 bisa dipakai lagi oleh keluarga demo yang bersih.
+  const taken = db.prepare("SELECT id FROM families WHERE code = 'PATH07'").get();
+  if (taken) {
+    const ALPHABET = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
+    let code;
+    do code = Array.from(crypto.randomBytes(6), (b) => ALPHABET[b % ALPHABET.length]).join("");
+    while (db.prepare("SELECT 1 FROM families WHERE code = ?").get(code));
+    if (db.prepare("SELECT 1 FROM users WHERE family_id = ?").get(taken.id)) {
+      db.prepare("UPDATE families SET code = ? WHERE id = ?").run(code, taken.id);
+    } else {
+      db.prepare("DELETE FROM talks WHERE family_id = ?").run(taken.id);
+      db.prepare("DELETE FROM families WHERE id = ?").run(taken.id);
+    }
+  }
 
   const fam = Number(db.prepare("INSERT INTO families (code) VALUES ('PATH07')").run().lastInsertRowid);
   const hash = bcrypt.hashSync("pathfinder", 10);
@@ -69,7 +85,7 @@ const run = db.transaction(() => {
   ms.run(child, "Pilih 3 Jurusan Kuliah Impian", "Desain Komunikasi Visual, Ilmu Komunikasi, Sistem Informasi — rangkum silabus & prospek karir.", "tahun_ini", "selesai", "Januari", 1, 150, 2, day(-45));
   ms.run(child, "Fokus Nilai Semester & Latihan Soal", "Meningkatkan rata-rata rapor Bahasa & Matematika untuk seleksi jalur prestasi.", "tahun_ini", "berjalan", "Akhir Februari", 0, 100, 3, null);
   ms.run(child, "Kunjungi Pameran Pendidikan Bersama Orang Tua", "Mengunjungi booth universitas, mengambil brosur biaya, dan merasakan suasana kampus bersama ayah & ibu.", "tahun_ini", "rencana", "Maret", 1, 100, 4, null);
-  ms.run(child, "Masuk Universitas Impian! 🎓", "Meraih kursi di program studi impian. Target perayaan: makan malam keluarga & foto toga bersama.", "jangka_panjang", "rencana", "Musim masuk PTN", 1, 300, 5, null);
+  ms.run(child, "Masuk Universitas Impian!", "Meraih kursi di program studi impian. Target perayaan: makan malam keluarga & foto toga bersama.", "jangka_panjang", "rencana", "Musim masuk PTN", 1, 300, 5, null);
   ms.run(child, "Bangun Startup Pertama", "Membuat produk digital yang membantu banyak orang — mulai dari proyek kecil.", "jangka_panjang", "rencana", "Usia 22", 0, 300, 6, null);
 
   db.prepare("INSERT INTO talks (family_id, child_id, topics, preferred_time, status, outcome, created_at, updated_at) VALUES (?, ?, ?, 'Akhir pekan', 'selesai', ?, datetime('now','-6 days'), datetime('now','-5 days'))")
