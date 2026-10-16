@@ -7,7 +7,7 @@ import { lastNDays, weekStart } from "@/lib/dates";
 import { HOURS_OPTIONS } from "@/lib/constants";
 import { geminiEnabled } from "@/lib/gemini";
 import { refundAiQuota, takeAiQuota } from "@/lib/ai-quota";
-import { aiPlan, rulePlan, type Plan, type PlannerInput, type PlannerProfile } from "@/lib/planner";
+import { aiPlan, cachedPlan, planCacheKey, rulePlan, storePlan, type Plan, type PlannerInput, type PlannerProfile } from "@/lib/planner";
 
 const clip = (v: unknown, max: number) => String(v ?? "").replace(/\s+/g, " ").trim().slice(0, max);
 
@@ -38,12 +38,19 @@ export async function planDream(raw: PlannerInput): Promise<{ plan?: Plan; error
   if (input.dream.length < 4) return { error: "Ceritakan impianmu sedikit lebih jelas ya (minimal 4 huruf)." };
 
   const profile = profileOf(me);
+  // Impian yang sama sudah pernah dirancang Gemini: tampilkan langsung (tanpa kuota)
+  const cacheKey = planCacheKey(profile, input);
+  const cached = geminiEnabled() ? cachedPlan(cacheKey) : null;
+  if (cached) return { plan: cached };
   // Batas harian per akun: kalau habis, rencana disusun mesin rule-based
   const allowed = geminiEnabled() && takeAiQuota(me, "plan");
   if (allowed) {
     try {
       const ai = await aiPlan(profile, input);
-      if (ai) return { plan: ai };
+      if (ai) {
+        storePlan(cacheKey, ai);
+        return { plan: ai };
+      }
     } catch (e) {
       console.error("[planner]", (e as Error).message);
     }

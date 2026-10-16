@@ -6,6 +6,8 @@
 //  Gemini dipakai bila tersedia; bila tidak, ada perencana berbasis aturan.
 // ============================================================================
 import "server-only";
+import crypto from "node:crypto";
+import { db } from "./db";
 import { generate, parseJson } from "./gemini";
 import { HOURS_OPTIONS } from "./constants";
 
@@ -210,6 +212,35 @@ function profileText(p: PlannerProfile, input: PlannerInput) {
   ]
     .filter(Boolean)
     .join("\n");
+}
+
+// ------------------------------------------------------------ cache rencana
+// Rencana Gemini untuk impian + kelas + pilihan yang sama disimpan 7 hari, jadi
+// impian yang sama muncul instan tanpa memanggil Gemini lagi (hemat kuota, demo mulus).
+// Sengaja TIDAK memakai roadmap/target anak sebagai kunci, karena itu berubah
+// setelah rencana diterapkan.
+const PLAN_TTL_DAYS = 7;
+const norm = (v?: string | null) => (v ?? "").toLowerCase().replace(/\s+/g, " ").trim();
+
+export function planCacheKey(profile: PlannerProfile, input: PlannerInput): string {
+  const parts = [norm(profile.grade), norm(input.dream), input.hours, norm(input.strengths), norm(input.constraints), norm(input.feedback)];
+  return "plan1:" + crypto.createHash("sha1").update(JSON.stringify(parts)).digest("hex");
+}
+
+export function cachedPlan(key: string): Plan | null {
+  const row = db
+    .prepare(`SELECT value FROM ai_cache WHERE key = ? AND created_at >= datetime('now', '-${PLAN_TTL_DAYS} days')`)
+    .get(key) as { value: string } | undefined;
+  if (!row) return null;
+  try {
+    return JSON.parse(row.value) as Plan;
+  } catch {
+    return null;
+  }
+}
+
+export function storePlan(key: string, plan: Plan) {
+  db.prepare("INSERT OR REPLACE INTO ai_cache (key, value, created_at) VALUES (?, ?, datetime('now'))").run(key, JSON.stringify(plan));
 }
 
 export async function aiPlan(profile: PlannerProfile, input: PlannerInput): Promise<Plan | null> {
