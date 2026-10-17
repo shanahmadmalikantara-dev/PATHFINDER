@@ -1,5 +1,6 @@
 import AppShell, { type Notice } from "@/components/AppShell";
 import AutoRefresh from "@/components/AutoRefresh";
+import DemoBar from "@/components/DemoBar";
 import { requireRole } from "@/lib/auth";
 import { getActiveTalk, getChildren, getFamily, talkTopics } from "@/lib/data";
 
@@ -20,6 +21,7 @@ export default async function ParentLayout({ children }: { children: React.React
   return (
     <AppShell role="parent" name={me.name} subtitle={me.relation ? `${me.relation} • Orang Tua` : "Orang Tua"} notices={notices}>
       <AutoRefresh />
+      {process.env.DEMO_MODE === "true" && me.email.endsWith("@demo.id") && <DemoBar role="parent" />}
       {children}
     </AppShell>
   );

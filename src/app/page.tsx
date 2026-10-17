@@ -98,6 +98,11 @@ export default async function Landing() {
             Masuk di sini
           </Link>
         </p>
+        {process.env.DEMO_MODE === "true" && (
+          <Link href="/demo" className="chip mt-3 bg-violet-50 px-4 py-2 text-sm font-semibold text-violet hover:bg-violet-100">
+            <Sparkles size={14} /> Coba demo tanpa daftar
+          </Link>
+        )}
 
         <div className="mt-10 grid w-full gap-3 text-left sm:grid-cols-2">
           <div className="rounded-2xl bg-white p-4 shadow-sm">

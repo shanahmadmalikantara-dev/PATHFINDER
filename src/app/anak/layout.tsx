@@ -1,5 +1,6 @@
 import AppShell, { type Notice } from "@/components/AppShell";
 import AutoRefresh from "@/components/AutoRefresh";
+import DemoBar from "@/components/DemoBar";
 import { requireRole } from "@/lib/auth";
 import { getActiveTalk, getFamily, getTodayCheckin, talkTopics } from "@/lib/data";
 
@@ -20,6 +21,7 @@ export default async function ChildLayout({ children }: { children: React.ReactN
   return (
     <AppShell role="child" name={me.name} subtitle={me.grade ?? "Mode Anak"} notices={notices}>
       <AutoRefresh />
+      {process.env.DEMO_MODE === "true" && me.email.endsWith("@demo.id") && <DemoBar role="child" />}
       {children}
     </AppShell>
   );
