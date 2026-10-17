@@ -93,6 +93,12 @@ export default async function DemoPage() {
           <Lock size={14} className="mt-0.5 shrink-0" />
           <span>Jurnal anak dienkripsi di HP dan tidak pernah dikirim ke server. Orang tua hanya melihat ringkasan energi, mood, dan progres.</span>
         </p>
+        <p className="text-center text-sm text-muted">
+          Ingin memakai akun sendiri?{" "}
+          <Link href="/mulai" className="font-semibold text-teal underline-offset-4 hover:underline">Daftar</Link>
+          {" · "}
+          <Link href="/masuk" className="font-semibold text-teal underline-offset-4 hover:underline">Masuk</Link>
+        </p>
         <p className="flex items-center justify-center gap-1.5 pb-4 text-center text-xs text-muted">
           <ShieldCheck size={13} /> Akun demo berisi data contoh, bukan data siswa asli.
         </p>

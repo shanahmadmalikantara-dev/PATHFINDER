@@ -37,6 +37,8 @@ const JSON_LD = {
 export default async function Landing() {
   const user = await getUser();
   if (user) redirect(homeFor(user.role));
+  // Saat presentasi (DEMO_MODE), QR ke halaman depan langsung membuka halaman demo juri
+  if (process.env.DEMO_MODE === "true") redirect("/demo");
 
   return (
     <div className="relative min-h-dvh overflow-hidden">
